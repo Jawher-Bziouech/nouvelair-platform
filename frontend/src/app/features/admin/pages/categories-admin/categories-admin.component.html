@@ -1,0 +1,32 @@
+<section class="page">
+  <header class="page-head">
+    <h1>Catégories</h1>
+    <p>Organiser les ressources de la base de connaissances.</p>
+  </header>
+  <p class="error" *ngIf="error">{{ error }}</p>
+
+  <form class="card" [formGroup]="form" (ngSubmit)="save()">
+    <h2>{{ isEditing ? 'Modifier catégorie' : 'Nouvelle catégorie' }}</h2>
+    <input formControlName="nom" placeholder="Nom" />
+    <input formControlName="description" placeholder="Description (optionnel)" />
+    <div class="actions">
+      <button type="submit">{{ isEditing ? 'Enregistrer' : 'Ajouter' }}</button>
+      <button type="button" class="secondary" *ngIf="isEditing" (click)="startCreate()">
+        Annuler
+      </button>
+    </div>
+  </form>
+
+  <ul>
+    <li *ngFor="let cat of categories">
+      <div>
+        <strong>{{ cat.nom }}</strong>
+        <small *ngIf="cat.description"> — {{ cat.description }}</small>
+      </div>
+      <div class="row-actions">
+        <button type="button" (click)="startEdit(cat)">Modifier</button>
+        <button type="button" (click)="remove(cat)">Supprimer</button>
+      </div>
+    </li>
+  </ul>
+</section>

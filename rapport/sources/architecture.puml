@@ -1,0 +1,34 @@
+@startuml figure_2_1_architecture
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam componentStyle rectangle
+
+title Architecture générale de la solution
+
+package "Couche présentation" #EFF6FF {
+  [Angular — Interface Web] as UI
+}
+
+package "Couche application" #F0FDFA {
+  [FastAPI — Backend Python] as API
+}
+
+package "Persistance métier" #FFF7ED {
+  database "MySQL\nUtilisateurs · Rôles\nRessources · Catégories" as MySQL
+}
+
+package "Module IA" #F8FAFC {
+  database "ChromaDB\nBase vectorielle" as Chroma
+  [LangChain — Pipeline RAG] as LC
+  [LLM — Génération] as LLM
+}
+
+UI -down-> API : REST / HTTPS
+API -down-> MySQL
+API -down-> Chroma
+API -down-> LC
+LC --> Chroma
+LC --> LLM
+
+@enduml

@@ -1,0 +1,66 @@
+<section class="page">
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">Front-office</p>
+      <h1>Accueil</h1>
+      <p>Consultez les documents et publications internes.</p>
+    </div>
+    <a *ngIf="canManage" routerLink="/home/upload" class="btn-primary">Publier une ressource</a>
+  </header>
+
+  <div class="filters card">
+    <input [(ngModel)]="q" placeholder="Rechercher un titre..." />
+    <select [(ngModel)]="categorieId">
+      <option value="">Toutes catégories</option>
+      <option *ngFor="let c of categories" [ngValue]="c.id">{{ c.nom }}</option>
+    </select>
+    <select [(ngModel)]="type">
+      <option value="">Tous types</option>
+      <option value="document">document</option>
+      <option value="procedure">procedure</option>
+      <option value="note">note</option>
+      <option value="guide">guide</option>
+      <option value="publication_interne">publication_interne</option>
+      <option value="blog">blog</option>
+    </select>
+    <button type="button" class="btn-secondary" (click)="load()">Filtrer</button>
+  </div>
+
+  <p class="error" *ngIf="error">{{ error }}</p>
+  <p *ngIf="loading">Chargement...</p>
+
+  <div class="cards" *ngIf="!loading">
+    <article class="resource-card" *ngFor="let item of ressources">
+      <div class="badge">{{ item.type }}</div>
+      <h2>{{ item.titre }}</h2>
+      <p class="meta">
+        {{ item.categorie?.nom || 'Sans catégorie' }}
+        <span *ngIf="item.type_fichier"> · {{ item.type_fichier }}</span>
+      </p>
+      <p class="author">
+        Publié par
+        <strong *ngIf="item.auteur as a; else unknownAuthor">
+          {{ a.prenom }} {{ a.nom }}
+        </strong>
+        <ng-template #unknownAuthor><strong>Utilisateur inconnu</strong></ng-template>
+        <span *ngIf="item.date_ajout"> · {{ item.date_ajout | date: 'mediumDate' }}</span>
+      </p>
+      <div class="actions">
+        <a [routerLink]="['/home', item.id]">Ouvrir</a>
+        <button type="button" (click)="download(item)" [disabled]="!item.chemin_fichier">
+          Télécharger
+        </button>
+        <button
+          *ngIf="canManage"
+          type="button"
+          class="danger"
+          (click)="remove(item)"
+        >
+          Supprimer
+        </button>
+      </div>
+    </article>
+  </div>
+
+  <p class="empty" *ngIf="!loading && ressources.length === 0">Aucune ressource trouvée.</p>
+</section>

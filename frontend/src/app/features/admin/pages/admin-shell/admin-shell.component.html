@@ -1,0 +1,32 @@
+<div class="admin-shell">
+  <header class="admin-topbar">
+    <div class="topbar-row">
+      <a routerLink="/admin/dashboard" class="brand">
+        <span class="logo-wrap">
+          <img src="assets/nouvelair-logo.svg" alt="Nouvelair" class="brand-logo" />
+        </span>
+        <small>Administration</small>
+      </a>
+
+      <div class="topbar-actions">
+        <a routerLink="/home" class="chip">← Front-office</a>
+        <div class="user" *ngIf="user">
+          <strong>{{ user.prenom }} {{ user.nom }}</strong>
+          <small>{{ user.role?.nom }}</small>
+        </div>
+        <button type="button" class="chip ghost" (click)="logout()">Déconnexion</button>
+      </div>
+    </div>
+
+    <nav class="admin-nav">
+      <a routerLink="/admin/dashboard" routerLinkActive="active">Tableau de bord</a>
+      <a routerLink="/admin/users" routerLinkActive="active">Utilisateurs</a>
+      <a routerLink="/admin/roles" routerLinkActive="active">Rôles</a>
+      <a routerLink="/admin/categories" routerLinkActive="active">Catégories</a>
+    </nav>
+  </header>
+
+  <main class="admin-main">
+    <router-outlet></router-outlet>
+  </main>
+</div>

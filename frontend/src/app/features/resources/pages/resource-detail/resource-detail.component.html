@@ -1,0 +1,114 @@
+<section class="page" *ngIf="!loading">
+  <header>
+    <div>
+      <a routerLink="/home">← Retour</a>
+      <h1>{{ ressource?.titre || 'Ressource' }}</h1>
+      <p class="byline" *ngIf="ressource as r">
+        Publié par
+        <strong *ngIf="r.auteur as a; else unknownDetailAuthor">
+          {{ a.prenom }} {{ a.nom }}
+        </strong>
+        <ng-template #unknownDetailAuthor><strong>Utilisateur inconnu</strong></ng-template>
+        <span *ngIf="r.date_ajout"> · {{ r.date_ajout | date: 'medium' }}</span>
+      </p>
+    </div>
+    <div class="header-actions" *ngIf="ressource">
+      <button type="button" (click)="download()" [disabled]="!ressource.chemin_fichier">
+        Télécharger
+      </button>
+      <button type="button" class="danger" *ngIf="canEdit" (click)="remove()">
+        Supprimer
+      </button>
+    </div>
+  </header>
+
+  <p class="error" *ngIf="error">{{ error }}</p>
+  <p class="success" *ngIf="success">{{ success }}</p>
+
+  <div class="meta card" *ngIf="ressource as r">
+    <p><strong>Auteur :</strong> {{ r.auteur?.prenom }} {{ r.auteur?.nom }}</p>
+    <p *ngIf="r.auteur?.email"><strong>Email :</strong> {{ r.auteur?.email }}</p>
+    <p><strong>Type :</strong> {{ r.type }}</p>
+    <p><strong>Fichier :</strong> {{ r.type_fichier || 'Aucun fichier' }}</p>
+    <p><strong>Indexée :</strong> {{ r.est_indexe ? 'oui' : 'non' }}</p>
+    <p><strong>Date :</strong> {{ r.date_ajout | date: 'short' }}</p>
+  </div>
+
+  <article class="contenu card" *ngIf="ressource?.contenu">
+    <h2>Contenu</h2>
+    <div class="blog-body">{{ ressource?.contenu }}</div>
+  </article>
+
+  <section class="preview card" *ngIf="ressource?.chemin_fichier">
+    <div class="preview-head">
+      <h2>Fichier joint</h2>
+      <span *ngIf="ressource?.type_fichier">.{{ ressource?.type_fichier }}</span>
+    </div>
+
+    <p *ngIf="previewLoading">Chargement de l'aperçu...</p>
+    <p class="error" *ngIf="previewError">{{ previewError }}</p>
+
+    <iframe
+      *ngIf="previewKind === 'pdf' && previewUrl"
+      class="pdf-frame"
+      [src]="previewUrl"
+      title="Aperçu PDF"
+    ></iframe>
+
+    <pre *ngIf="previewKind === 'text' && previewText" class="text-preview">{{ previewText }}</pre>
+
+    <p class="preview-note" *ngIf="previewKind === 'unsupported'">
+      L'aperçu en ligne n'est pas disponible pour les fichiers Word (.doc / .docx).
+      Utilisez <strong>Télécharger</strong> pour ouvrir le document.
+    </p>
+  </section>
+
+  <p
+    class="empty-file"
+    *ngIf="ressource && !ressource.chemin_fichier && !ressource.contenu"
+  >
+    Cette ressource n'a ni contenu texte ni fichier joint.
+  </p>
+
+  <form class="card" [formGroup]="form" (ngSubmit)="save()" *ngIf="canEdit; else readOnly">
+    <h2>Modifier</h2>
+    <label>
+      Titre
+      <input formControlName="titre" />
+    </label>
+    <label>
+      Type
+      <select formControlName="type">
+        <option value="document">document</option>
+        <option value="procedure">procedure</option>
+        <option value="note">note</option>
+        <option value="guide">guide</option>
+        <option value="publication_interne">publication_interne</option>
+        <option value="blog">blog</option>
+      </select>
+    </label>
+    <label>
+      Catégorie
+      <select formControlName="categorie_id">
+        <option *ngFor="let c of categories" [ngValue]="c.id">{{ c.nom }}</option>
+      </select>
+    </label>
+    <label>
+      Contenu
+      <textarea formControlName="contenu" rows="8"></textarea>
+    </label>
+    <button type="submit" [disabled]="saving">
+      {{ saving ? 'Enregistrement...' : 'Enregistrer' }}
+    </button>
+  </form>
+
+  <ng-template #readOnly>
+    <div class="card" *ngIf="ressource as r">
+      <h2>Détails</h2>
+      <p><strong>Type :</strong> {{ r.type }}</p>
+      <p><strong>Catégorie :</strong> {{ r.categorie?.nom || '—' }}</p>
+    </div>
+  </ng-template>
+</section>
+
+<p *ngIf="loading">Chargement...</p>

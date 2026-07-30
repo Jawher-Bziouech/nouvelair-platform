@@ -1,0 +1,48 @@
+export interface Role {
+  id: number;
+  nom: string;
+}
+
+export interface User {
+  id: number;
+  nom: string;
+  prenom: string;
+  email: string;
+  role_id: number;
+  date_creation?: string | null;
+  role?: Role | null;
+}
+
+export interface Categorie {
+  id: number;
+  nom: string;
+  description?: string | null;
+}
+
+export interface Ressource {
+  id: number;
+  titre: string;
+  type: string;
+  contenu?: string | null;
+  type_fichier?: string | null;
+  chemin_fichier?: string | null;
+  categorie_id: number;
+  auteur_id: number;
+  date_ajout?: string | null;
+  est_indexe: boolean;
+  categorie?: Categorie | null;
+  auteur?: User | null;
+}
+
+export interface DashboardStats {
+  users: number;
+  roles: number;
+  categories: number;
+  ressources: number;
+  ressources_indexees: number;
+}
+
+export interface TokenResponse {
+  access_token: string;
+  token_type: string;
+}

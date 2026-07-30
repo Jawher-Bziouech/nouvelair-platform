@@ -1,0 +1,151 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: #eef1f5;
+}
+
+.admin-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #101820;
+  color: #fff;
+  box-shadow: 0 10px 28px rgba(16, 24, 32, 0.28);
+}
+
+.topbar-row {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0.85rem 1.25rem 0.55rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: inherit;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.logo-wrap {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 0.4rem;
+  padding: 0.35rem 0.55rem;
+}
+
+.brand-logo {
+  display: block;
+  height: 1.45rem;
+  width: auto;
+}
+
+.brand > small {
+  opacity: 0.72;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.user {
+  text-align: right;
+  line-height: 1.15;
+}
+
+.user strong {
+  display: block;
+  font-size: 0.9rem;
+}
+
+.user small {
+  display: block;
+  opacity: 0.7;
+  font-size: 0.75rem;
+}
+
+.chip {
+  color: #fff;
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: transparent;
+  padding: 0.45rem 0.75rem;
+  border-radius: 0.4rem;
+  font: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.chip:hover,
+.chip.ghost:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.admin-nav {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+  display: flex;
+  gap: 0.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.admin-nav a {
+  color: rgba(255, 255, 255, 0.78);
+  text-decoration: none;
+  padding: 0.85rem 1rem;
+  border-bottom: 3px solid transparent;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.admin-nav a:hover {
+  color: #fff;
+}
+
+.admin-nav a.active {
+  color: #ffd890;
+  border-bottom-color: #e2a12b;
+}
+
+.admin-main {
+  flex: 1;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 2.5rem;
+}
+
+@media (max-width: 800px) {
+  .topbar-row {
+    flex-wrap: wrap;
+  }
+
+  .user {
+    display: none;
+  }
+
+  .admin-nav {
+    overflow-x: auto;
+  }
+
+  .admin-nav a {
+    white-space: nowrap;
+  }
+}

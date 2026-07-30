@@ -1,0 +1,33 @@
+@startuml figure_2_7_sequence_ajout
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+title Diagramme de séquence — Ajouter une ressource de connaissance
+
+actor "Manager" as M
+participant "Angular" as UI
+participant "FastAPI" as API
+database "MySQL" as DB
+participant "Stockage fichiers" as FS
+participant "Indexeur" as IX
+database "ChromaDB" as VDB
+
+M -> UI : 1. Titre, catégorie, fichier
+UI -> API : 2. POST /api/ressources
+API -> DB : 3. INSERT RessourceDeConnaissance
+DB --> API : ressourceId
+API -> FS : 4. Stocker le fichier
+FS --> API : cheminFichier
+API -> IX : 5. Déclencher indexation
+IX -> IX : 6. Extraire → chunks → embeddings
+IX -> VDB : 7. Upsert vecteurs (lien ressourceId)
+VDB --> IX : OK
+IX -> DB : 8. UPDATE estIndexe = true
+IX --> API : indexation terminée
+API --> UI : 9. Ressource créée et indexée
+UI --> M : 10. Confirmation
+
+alt Fichier invalide
+  API --> UI : erreur — aucune persistance
+end
+
+@enduml

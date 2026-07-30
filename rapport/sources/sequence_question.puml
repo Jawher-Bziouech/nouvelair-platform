@@ -1,0 +1,31 @@
+@startuml figure_2_6_sequence_question
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+title Diagramme de séquence — Poser une question à l'assistant intelligent
+
+actor "Employé" as E
+participant "Angular" as UI
+participant "FastAPI" as API
+database "ChromaDB" as VDB
+participant "LangChain / LLM" as AI
+database "MySQL" as DB
+
+E -> UI : 1. Saisir une question
+UI -> API : 2. POST /api/assistant/question
+API -> DB : 3. Charger / créer SessionAssistant
+DB --> API : sessionId
+API -> VDB : 4. Recherche vectorielle
+VDB --> API : fragments + métadonnées
+API -> AI : 5. Prompt + contexte (RAG)
+AI --> API : réponse générée
+API -> DB : 6. Persister MessageAssistant + Citations
+DB --> API : OK
+API --> UI : 7. Réponse + citations
+UI --> E : 8. Afficher réponse et sources
+
+note over E, DB
+  Post-condition : l'échange est disponible
+  dans l'historique de session.
+end note
+
+@enduml

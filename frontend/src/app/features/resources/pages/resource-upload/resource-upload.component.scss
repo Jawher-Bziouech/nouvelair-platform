@@ -1,0 +1,57 @@
+.page {
+  display: grid;
+  gap: 1rem;
+  max-width: 640px;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #d9e0ea;
+  border-radius: 0.7rem;
+  padding: 1.25rem;
+  display: grid;
+  gap: 0.9rem;
+}
+
+label {
+  display: grid;
+  gap: 0.35rem;
+}
+
+input,
+select,
+textarea,
+button {
+  padding: 0.65rem 0.8rem;
+  border: 1px solid #d0d5dd;
+  border-radius: 0.45rem;
+  font: inherit;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 180px;
+  line-height: 1.5;
+}
+
+.intro {
+  margin: 0;
+  color: #667085;
+}
+
+button {
+  background: #0b2a4a;
+  color: #fff;
+  border-color: #0b2a4a;
+  cursor: pointer;
+}
+
+.error {
+  color: #b42318;
+  margin: 0;
+}
+
+.success {
+  color: #027a48;
+  margin: 0;
+}

@@ -1,0 +1,117 @@
+<section class="page">
+  <header class="page-head">
+    <div>
+      <h1>Tableau de bord</h1>
+      <p>Pilotage du back-office : utilisateurs, contenu et structure.</p>
+    </div>
+  </header>
+
+  <p class="error" *ngIf="error">{{ error }}</p>
+  <p *ngIf="loading">Chargement...</p>
+
+  <ng-container *ngIf="!loading && stats as s">
+    <div class="stats">
+      <a routerLink="/admin/users" class="stat">
+        <h2>{{ s.users }}</h2>
+        <p>Utilisateurs</p>
+        <span>Gérer →</span>
+      </a>
+      <a routerLink="/admin/roles" class="stat">
+        <h2>{{ s.roles }}</h2>
+        <p>Rôles</p>
+        <span>Gérer →</span>
+      </a>
+      <a routerLink="/admin/categories" class="stat">
+        <h2>{{ s.categories }}</h2>
+        <p>Catégories</p>
+        <span>Gérer →</span>
+      </a>
+      <a routerLink="/home" class="stat">
+        <h2>{{ s.ressources }}</h2>
+        <p>Ressources</p>
+        <span>Voir le site →</span>
+      </a>
+      <div class="stat muted">
+        <h2>{{ s.ressources_indexees }}</h2>
+        <p>Indexées (RAG)</p>
+        <span>Bientôt</span>
+      </div>
+    </div>
+
+    <div class="actions">
+      <h2>Actions rapides</h2>
+      <div class="action-row">
+        <a routerLink="/admin/users">Créer un utilisateur</a>
+        <a routerLink="/admin/categories">Ajouter une catégorie</a>
+        <a routerLink="/admin/roles">Gérer les rôles</a>
+        <a routerLink="/home/upload">Publier une ressource</a>
+      </div>
+    </div>
+
+    <div class="panels">
+      <section class="panel">
+        <header>
+          <h2>Derniers utilisateurs</h2>
+          <a routerLink="/admin/users">Tout voir</a>
+        </header>
+        <table *ngIf="recentUsers.length; else noUsers">
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Email</th>
+              <th>Rôle</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let u of recentUsers">
+              <td>{{ u.prenom }} {{ u.nom }}</td>
+              <td>{{ u.email }}</td>
+              <td>{{ u.role?.nom || '—' }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <ng-template #noUsers><p class="empty">Aucun utilisateur.</p></ng-template>
+      </section>
+
+      <section class="panel">
+        <header>
+          <h2>Dernières ressources</h2>
+          <a routerLink="/home">Front-office</a>
+        </header>
+        <table *ngIf="recentRessources.length; else noRes">
+          <thead>
+            <tr>
+              <th>Titre</th>
+              <th>Type</th>
+              <th>Catégorie</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let r of recentRessources">
+              <td>
+                <a [routerLink]="['/home', r.id]">{{ r.titre }}</a>
+              </td>
+              <td>{{ r.type }}</td>
+              <td>{{ r.categorie?.nom || '—' }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <ng-template #noRes><p class="empty">Aucune ressource.</p></ng-template>
+      </section>
+
+      <section class="panel">
+        <header>
+          <h2>Catégories</h2>
+          <a routerLink="/admin/categories">Gérer</a>
+        </header>
+        <ul class="cat-list" *ngIf="categories.length; else noCat">
+          <li *ngFor="let c of categories">
+            <strong>{{ c.nom }}</strong>
+            <span>{{ c.description || 'Sans description' }}</span>
+          </li>
+        </ul>
+        <ng-template #noCat><p class="empty">Aucune catégorie.</p></ng-template>
+      </section>
+    </div>
+  </ng-container>
+</section>

@@ -1,0 +1,108 @@
+.page {
+  display: grid;
+  gap: 1rem;
+}
+
+.page-head h1 {
+  margin: 0;
+}
+
+.page-head p {
+  margin: 0.35rem 0 0;
+  color: #667085;
+}
+
+.page-head::before {
+  content: 'Back-office';
+  display: block;
+  margin-bottom: 0.35rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+  color: #c47a12;
+  font-weight: 650;
+}
+
+.card,
+table {
+  background: #fff;
+  border: 1px solid #d7dde5;
+  border-radius: 0.65rem;
+  box-shadow: 0 1px 2px rgba(20, 27, 36, 0.04);
+}
+
+.card {
+  padding: 1.1rem;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.card h2 {
+  margin: 0 0 0.15rem;
+  font-size: 1.05rem;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.55rem;
+}
+
+.actions,
+.row-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+input,
+select,
+button {
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #cfd6df;
+  border-radius: 0.4rem;
+  font: inherit;
+  background: #fff;
+}
+
+button {
+  cursor: pointer;
+  background: #141b24;
+  color: #fff;
+  border-color: #141b24;
+}
+
+.secondary {
+  background: #eef1f5;
+  color: #1b2430;
+  border-color: #cfd6df;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  overflow: hidden;
+}
+
+th,
+td {
+  border-bottom: 1px solid #e4e8ee;
+  padding: 0.7rem 0.85rem;
+  text-align: left;
+}
+
+th {
+  background: #f7f9fb;
+  font-size: 0.85rem;
+  color: #667085;
+}
+
+.error {
+  color: #b42318;
+}
+
+@media (max-width: 700px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+}

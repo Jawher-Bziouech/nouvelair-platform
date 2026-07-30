@@ -1,0 +1,25 @@
+<section class="page">
+  <header class="page-head">
+    <h1>Rôles</h1>
+    <p>Définir les rôles d’accès (Administrateur, Manager, Employé…).</p>
+  </header>
+  <p class="error" *ngIf="error">{{ error }}</p>
+
+  <form class="card" [formGroup]="form" (ngSubmit)="save()">
+    <input formControlName="nom" placeholder="Nom du rôle" />
+    <button type="submit">{{ isEditing ? 'Enregistrer' : 'Ajouter' }}</button>
+    <button type="button" class="secondary" *ngIf="isEditing" (click)="startCreate()">
+      Annuler
+    </button>
+  </form>
+
+  <ul>
+    <li *ngFor="let role of roles">
+      <span>{{ role.nom }}</span>
+      <div class="row-actions">
+        <button type="button" (click)="startEdit(role)">Modifier</button>
+        <button type="button" (click)="remove(role)">Supprimer</button>
+      </div>
+    </li>
+  </ul>
+</section>

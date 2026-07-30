@@ -1,0 +1,38 @@
+<div class="front-shell">
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a routerLink="/home" class="brand">
+        <span class="logo-wrap">
+          <img src="assets/nouvelair-logo.svg" alt="Nouvelair" class="brand-logo" />
+        </span>
+        <small>Base de connaissances</small>
+      </a>
+
+      <nav>
+        <a routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+          Accueil
+        </a>
+        <a
+          *ngIf="isManagerOrAdmin"
+          routerLink="/home/upload"
+          routerLinkActive="active"
+        >
+          Publier
+        </a>
+      </nav>
+
+      <div class="account" *ngIf="user">
+        <div class="who">
+          <strong>{{ user.prenom }} {{ user.nom }}</strong>
+          <small>{{ user.role?.nom }}</small>
+        </div>
+        <a *ngIf="isAdmin" routerLink="/admin" class="admin-link">Back-office</a>
+        <button type="button" class="ghost" (click)="logout()">Déconnexion</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="front-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

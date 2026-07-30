@@ -1,0 +1,55 @@
+<section class="page">
+  <header class="page-head">
+    <h1>Utilisateurs</h1>
+    <p>Créer, modifier et supprimer les comptes de la plateforme.</p>
+  </header>
+  <p class="error" *ngIf="error">{{ error }}</p>
+
+  <form class="card" [formGroup]="form" (ngSubmit)="save()">
+    <h2>{{ isEditing ? 'Modifier utilisateur' : 'Nouvel utilisateur' }}</h2>
+    <div class="row">
+      <input formControlName="nom" placeholder="Nom" />
+      <input formControlName="prenom" placeholder="Prénom" />
+    </div>
+    <div class="row">
+      <input formControlName="email" placeholder="Email" />
+      <input
+        formControlName="mot_de_passe"
+        type="password"
+        [placeholder]="isEditing ? 'Nouveau mot de passe (optionnel)' : 'Mot de passe'"
+      />
+    </div>
+    <select formControlName="role_id">
+      <option [ngValue]="null">Rôle...</option>
+      <option *ngFor="let r of roles" [ngValue]="r.id">{{ r.nom }}</option>
+    </select>
+    <div class="actions">
+      <button type="submit">{{ isEditing ? 'Enregistrer' : 'Créer' }}</button>
+      <button type="button" class="secondary" *ngIf="isEditing" (click)="startCreate()">
+        Annuler
+      </button>
+    </div>
+  </form>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Email</th>
+        <th>Rôle</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let u of users">
+        <td>{{ u.prenom }} {{ u.nom }}</td>
+        <td>{{ u.email }}</td>
+        <td>{{ u.role?.nom }}</td>
+        <td class="row-actions">
+          <button type="button" (click)="startEdit(u)">Modifier</button>
+          <button type="button" (click)="remove(u)">Supprimer</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</section>

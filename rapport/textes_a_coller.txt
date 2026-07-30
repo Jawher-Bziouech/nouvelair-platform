@@ -1,0 +1,35 @@
+# Textes à coller dans le rapport (Word / LaTeX)
+
+## §2.6 — Table 2.3 (remplacer)
+
+| Concept métier | Description |
+|---|---|
+| Utilisateur | Personne authentifiée autorisée à accéder à la plateforme. |
+| Rôle | Niveau d'autorisation (Employé, Manager, Administrateur). |
+| RessourceDeConnaissance | Entité centrale : document, procédure, note, guide, publication interne, etc. |
+| Catégorie | Permet d'organiser les ressources de connaissance. |
+| SessionAssistant | Session de dialogue entre un utilisateur et l'assistant intelligent (historique RAG). |
+| MessageAssistant | Question de l'utilisateur ou réponse de l'assistant dans une session. |
+| Citation | Extrait d'une ressource utilisé pour justifier une réponse de l'assistant. |
+
+À retirer / ne plus utiliser : Contenu, Conversation, Message (générique), Source IA, Post, Commentaire.
+
+## §2.5 — phrase MySQL (remplacer)
+
+La base de données MySQL assure la persistance des données métier telles que les utilisateurs, les rôles, les ressources de connaissance, les catégories, les sessions d'assistant, les messages et les citations.
+
+## §2.11 — paragraphe explicatif (remplacer)
+
+Le diagramme de classes traduit les concepts métier en un modèle conceptuel destiné au schéma MySQL.
+
+Une ressource de connaissance appartient à une catégorie ; un utilisateur (manager ou administrateur) peut en publier plusieurs. L'historique du chat avec l'assistant est modélisé par SessionAssistant et MessageAssistant : il ne s'agit pas d'un forum (pas d'entités Post / Commentaire). Une publication interne est simplement une valeur de l'attribut type de RessourceDeConnaissance.
+
+Chaque réponse de l'assistant peut s'appuyer sur une ou plusieurs Citations ; chaque citation référence la RessourceDeConnaissance d'origine via un extrait textuel.
+
+## Nouvelles sections suggérées après §2.11
+
+### 2.12 Diagramme de séquence — Poser une question à l'assistant
+(insérer figure_2_6_sequence_question.png)
+
+### 2.13 Diagramme de séquence — Ajouter une ressource de connaissance
+(insérer figure_2_7_sequence_ajout_ressource.png)

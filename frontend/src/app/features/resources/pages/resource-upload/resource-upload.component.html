@@ -1,0 +1,54 @@
+<section class="page">
+  <h1>Ajouter une ressource</h1>
+  <p class="intro">
+    Publiez un document, une note ou un article / blog. Le texte et le fichier sont optionnels.
+  </p>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="card">
+    <label>
+      Titre
+      <input formControlName="titre" />
+    </label>
+
+    <label>
+      Type
+      <select formControlName="type">
+        <option value="document">document</option>
+        <option value="procedure">procedure</option>
+        <option value="note">note</option>
+        <option value="guide">guide</option>
+        <option value="publication_interne">publication_interne</option>
+        <option value="blog">blog</option>
+      </select>
+    </label>
+
+    <label>
+      Catégorie
+      <select formControlName="categorie_id">
+        <option [ngValue]="null">Choisir...</option>
+        <option *ngFor="let c of categories" [ngValue]="c.id">{{ c.nom }}</option>
+      </select>
+    </label>
+
+    <label>
+      Contenu (article / blog — optionnel)
+      <textarea
+        formControlName="contenu"
+        rows="10"
+        placeholder="Rédigez ici votre article, note ou publication..."
+      ></textarea>
+    </label>
+
+    <label>
+      Fichier joint (optionnel — pdf, docx, txt, md)
+      <input type="file" (change)="onFileChange($event)" />
+    </label>
+
+    <p class="error" *ngIf="error">{{ error }}</p>
+    <p class="success" *ngIf="success">{{ success }}</p>
+
+    <button type="submit" [disabled]="loading">
+      {{ loading ? 'Envoi...' : 'Enregistrer' }}
+    </button>
+  </form>
+</section>

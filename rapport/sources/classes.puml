@@ -1,0 +1,94 @@
+@startuml figure_2_5_classes
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam classFontStyle bold
+skinparam classBackgroundColor #FFFFFF
+skinparam classHeaderBackgroundColor #0B3A5B
+skinparam classFontColor #FFFFFF
+skinparam classAttributeFontColor #334155
+skinparam classBorderColor #0B3A5B
+
+title Diagramme de classes — plateforme de gestion des connaissances
+
+class Role {
+  - id : int
+  - nom : string
+}
+
+class Utilisateur {
+  - id : int
+  - nom : string
+  - prenom : string
+  - email : string
+  - motDePasse : string
+  - dateCreation : datetime
+  + sAuthentifier()
+}
+
+class Categorie {
+  - id : int
+  - nom : string
+  - description : string
+}
+
+class RessourceDeConnaissance {
+  - id : int
+  - titre : string
+  - type : enum
+  - typeFichier : string
+  - cheminFichier : string
+  - dateAjout : datetime
+  - estIndexe : boolean
+  + ajouter()
+  + modifier()
+  + supprimer()
+  + telecharger()
+}
+
+class SessionAssistant {
+  - id : int
+  - dateDebut : datetime
+  - dateDerniereActivite : datetime
+}
+
+class MessageAssistant {
+  - id : int
+  - texte : text
+  - role : enum
+  - dateEnvoi : datetime
+}
+
+class Citation {
+  - id : int
+  - extrait : text
+  - scorePertinence : float
+}
+
+Role "1" -- "0..*" Utilisateur : possede
+Utilisateur "1" -- "0..*" RessourceDeConnaissance : publie
+Categorie "1" -- "0..*" RessourceDeConnaissance : classe
+Utilisateur "1" -- "0..*" SessionAssistant : ouvre
+SessionAssistant "1" -- "1..*" MessageAssistant : contient
+MessageAssistant "0..*" -- "0..*" Citation : justifie
+Citation "0..*" -- "1" RessourceDeConnaissance : provient de
+
+note right of RessourceDeConnaissance
+  Remplace l'ancien nom flou « Contenu ».
+  type ∈ {document, procedure, note,
+  guide, publication_interne, ...}
+  Ce n'est PAS un forum :
+  pas d'entités Post / Commentaire.
+end note
+
+note bottom of SessionAssistant
+  Historique du chat IA (RAG),
+  pas une messagerie entre employés.
+end note
+
+note bottom of Citation
+  Remplace « Source IA ».
+  Extrait d'une ressource cité
+  dans une réponse de l'assistant.
+end note
+
+@enduml
