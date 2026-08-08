@@ -1,0 +1,202 @@
+.assistant-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 2.5rem;
+}
+
+.page-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+  margin-bottom: 1.25rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.25rem;
+  color: #0b5cad;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.page-head h1 {
+  margin: 0 0 0.35rem;
+}
+
+.page-head p {
+  margin: 0;
+  color: #5a6a7a;
+}
+
+.btn-secondary,
+.btn-primary {
+  border: 0;
+  border-radius: 0.4rem;
+  padding: 0.55rem 0.9rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.btn-secondary {
+  background: #e8eef5;
+  color: #0b2a4a;
+}
+
+.btn-primary {
+  background: #0b5cad;
+  color: #fff;
+}
+
+.btn-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #d7e0ea;
+  border-radius: 0.7rem;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(11, 42, 74, 0.05);
+}
+
+.thread {
+  min-height: 340px;
+  max-height: 58vh;
+  overflow: auto;
+  padding: 1.1rem 1.2rem;
+  background: linear-gradient(180deg, #f7fafd, #fff 40%);
+}
+
+.welcome {
+  color: #5a6a7a;
+}
+
+.welcome ul {
+  margin: 0.4rem 0 0;
+  padding-left: 1.1rem;
+}
+
+.bubble {
+  margin-bottom: 0.9rem;
+  max-width: 92%;
+  padding: 0.75rem 0.9rem;
+  border-radius: 0.65rem;
+  border: 1px solid #dce5ef;
+  background: #fff;
+}
+
+.bubble.user {
+  margin-left: auto;
+  background: #e8f1fa;
+  border-color: #b9d0e8;
+}
+
+.bubble.bot {
+  margin-right: auto;
+  background: #fff;
+}
+
+.bubble header {
+  margin-bottom: 0.35rem;
+  font-size: 0.8rem;
+  color: #5a6a7a;
+}
+
+.bubble .body {
+  white-space: pre-wrap;
+  line-height: 1.45;
+}
+
+.citations {
+  margin-top: 0.75rem;
+  padding-top: 0.65rem;
+  border-top: 1px dashed #cfdbe8;
+}
+
+.cit-title {
+  margin: 0 0 0.45rem;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #0b5cad;
+}
+
+.citation {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  background: #f4f8fc;
+  border: 1px solid #d5e3f0;
+  border-radius: 0.45rem;
+  padding: 0.55rem 0.7rem;
+  margin-bottom: 0.45rem;
+}
+
+.citation:hover {
+  border-color: #0b5cad;
+}
+
+.citation strong {
+  color: #0b2a4a;
+}
+
+.citation span {
+  margin-left: 0.45rem;
+  font-size: 0.75rem;
+  color: #7a8a9a;
+}
+
+.citation p {
+  margin: 0.35rem 0 0;
+  font-size: 0.88rem;
+  color: #445566;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.thinking {
+  color: #0b5cad;
+  font-style: italic;
+}
+
+.error {
+  color: #b00020;
+  margin: 0.6rem 1.2rem 0;
+}
+
+.mode {
+  margin: 0.45rem 1.2rem 0;
+  font-size: 0.82rem;
+  color: #5a6a7a;
+}
+
+.composer {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.65rem;
+  padding: 0.9rem 1rem 1rem;
+  border-top: 1px solid #e2eaf2;
+  background: #fbfcfe;
+}
+
+.composer textarea {
+  resize: vertical;
+  min-height: 2.8rem;
+  border: 1px solid #c5d3e0;
+  border-radius: 0.45rem;
+  padding: 0.55rem 0.7rem;
+}
+
+@media (max-width: 700px) {
+  .page-head {
+    flex-direction: column;
+  }
+
+  .composer {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,74 @@
+<section class="page assistant-page">
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">Assistant intelligent</p>
+      <h1>Poser une question</h1>
+      <p>
+        Les réponses s’appuient uniquement sur les ressources indexées de Nouvelair,
+        avec citations des sources.
+      </p>
+    </div>
+    <button type="button" class="btn-secondary" (click)="newChat()">Nouvelle conversation</button>
+  </header>
+
+  <div class="chat card">
+    <div class="thread" #thread>
+      <div class="welcome" *ngIf="messages.length === 0 && !loading && !restoring">
+        <p>Exemples :</p>
+        <ul>
+          <li>« Quelles sont les étapes d’embarquement passagers ? »</li>
+          <li>« Comment gérer une réclamation client ? »</li>
+          <li>« Quelles consignes de sécurité piste ? »</li>
+        </ul>
+      </div>
+
+      <p class="thinking" *ngIf="restoring">Rechargement de la conversation…</p>
+
+      <article
+        *ngFor="let m of messages"
+        class="bubble"
+        [class.user]="m.role === 'user'"
+        [class.bot]="m.role === 'assistant'"
+      >
+        <header>
+          <strong>{{ m.role === 'user' ? 'Vous' : 'Assistant' }}</strong>
+        </header>
+        <div class="body">{{ m.texte }}</div>
+
+        <div class="citations" *ngIf="m.citations?.length">
+          <p class="cit-title">Sources</p>
+          <a
+            *ngFor="let c of m.citations"
+            class="citation"
+            [routerLink]="['/home', c.ressource_id]"
+          >
+            <strong>{{ citationTitle(c) }}</strong>
+            <span *ngIf="c.score_pertinence != null">score {{ c.score_pertinence }}</span>
+            <p>{{ c.extrait }}</p>
+          </a>
+        </div>
+      </article>
+
+      <p class="thinking" *ngIf="loading">Recherche dans la base de connaissances…</p>
+    </div>
+
+    <p class="error" *ngIf="error">{{ error }}</p>
+    <p class="mode" *ngIf="mode">
+      Mode génération :
+      <strong>{{ modeLabel }}</strong>
+    </p>
+
+    <form class="composer" (ngSubmit)="send()">
+      <textarea
+        [(ngModel)]="question"
+        name="question"
+        rows="2"
+        placeholder="Posez votre question…"
+        [disabled]="loading"
+      ></textarea>
+      <button type="submit" class="btn-primary" [disabled]="loading || !question.trim()">
+        Envoyer
+      </button>
+    </form>
+  </div>
+</section>

@@ -14,18 +14,25 @@ OUT.mkdir(parents=True, exist_ok=True)
 plt.rcParams["font.family"] = "serif"
 plt.rcParams["axes.unicode_minus"] = False
 
-# Palette académique classique (noir / gris — thème du rapport original)
-NAVY = "#000000"
-TEAL = "#222222"
-SLATE = "#111111"
-LIGHT = "#F2F2F2"
-BORDER = "#666666"
-ACCENT = "#000000"
+# Palette couleur Nouvelair (figures)
+NAVY = "#0B5CAD"
+TEAL = "#0E8A7D"
+SLATE = "#243447"
+LIGHT = "#EEF5FB"
+BORDER = "#7A93A8"
+ACCENT = "#E07A2F"
+PURPLE = "#6B5B95"
+GREEN = "#2E7D4F"
 WHITE = "#FFFFFF"
-SOFT = "#E8E8E8"
-LAYER_A = "#F7F7F7"
-LAYER_B = "#F0F0F0"
-LAYER_C = "#EAEAEA"
+SOFT = "#F7FAFD"
+LAYER_A = "#E3F0FB"   # présentation (bleu clair)
+LAYER_B = "#E5F6F3"   # application (teal clair)
+LAYER_C = "#FFF0E4"   # données (orange clair)
+LAYER_D = "#F0EAF8"   # IA (violet clair)
+BOX_A = "#D6E9F8"
+BOX_B = "#CDEEE9"
+BOX_C = "#FFE2C8"
+BOX_D = "#E4D9F5"
 
 
 def save(fig, name: str):
@@ -85,54 +92,105 @@ def fig_architecture():
     # Couche présentation
     ax.add_patch(FancyBboxPatch((0.4, 5.7), 9.7, 1.2,
                                 boxstyle="round,pad=0.02,rounding_size=0.06",
-                                fc=LAYER_A, ec=NAVY, lw=1.2, ls="--", zorder=0))
+                                fc=LAYER_A, ec=NAVY, lw=1.4, ls="--", zorder=0))
     ax.text(0.55, 6.7, "Couche présentation", fontsize=8, color=NAVY, fontweight="bold")
     rounded_box(ax, (3.2, 5.9), 4.1, 0.75, "Angular — Interface Web",
-                fc=WHITE, ec=NAVY, fontsize=10, bold=True,
+                fc=BOX_A, ec=NAVY, fontsize=10, bold=True,
                 sub="Employé · Manager · Administrateur")
 
     # Flèche REST
-    arrow(ax, (5.25, 5.9), (5.25, 5.15))
+    arrow(ax, (5.25, 5.9), (5.25, 5.15), color=TEAL)
     ax.text(5.55, 5.45, "REST / HTTPS", fontsize=8, color=TEAL, fontweight="bold")
 
     # Couche application
     ax.add_patch(FancyBboxPatch((0.4, 3.55), 9.7, 1.55,
                                 boxstyle="round,pad=0.02,rounding_size=0.06",
-                                fc=LAYER_B, ec=TEAL, lw=1.2, ls="--", zorder=0))
+                                fc=LAYER_B, ec=TEAL, lw=1.4, ls="--", zorder=0))
     ax.text(0.55, 4.9, "Couche application", fontsize=8, color=TEAL, fontweight="bold")
     rounded_box(ax, (2.6, 3.8), 5.3, 0.95, "FastAPI — Backend Python",
-                fc=WHITE, ec=TEAL, fontsize=10, bold=True,
+                fc=BOX_B, ec=TEAL, fontsize=10, bold=True,
                 sub="API REST · Auth · Services métier · Orchestration IA")
 
     # Flèches vers persistance / IA
-    arrow(ax, (3.5, 3.8), (2.2, 2.95))
-    arrow(ax, (6.8, 3.8), (8.0, 2.95))
+    arrow(ax, (3.5, 3.8), (2.2, 2.95), color=ACCENT)
+    arrow(ax, (6.8, 3.8), (8.0, 2.95), color=PURPLE)
 
     # Couche données
     ax.add_patch(FancyBboxPatch((0.4, 0.35), 4.4, 2.45,
                                 boxstyle="round,pad=0.02,rounding_size=0.06",
-                                fc=LAYER_C, ec=ACCENT, lw=1.2, ls="--", zorder=0))
+                                fc=LAYER_C, ec=ACCENT, lw=1.4, ls="--", zorder=0))
     ax.text(0.55, 2.55, "Persistance métier", fontsize=8, color=ACCENT, fontweight="bold")
     rounded_box(ax, (0.85, 1.35), 3.5, 0.95, "MySQL",
-                fc=WHITE, ec=ACCENT, fontsize=10, bold=True,
+                fc=BOX_C, ec=ACCENT, fontsize=10, bold=True,
                 sub="Utilisateurs · Rôles · Ressources · Catégories")
 
-    # Couche IA — LangChain orchestre ChromaDB + LLM
+    # Couche IA
     ax.add_patch(FancyBboxPatch((5.5, 0.35), 4.6, 2.45,
                                 boxstyle="round,pad=0.02,rounding_size=0.06",
-                                fc=LAYER_A, ec=SLATE, lw=1.2, ls="--", zorder=0))
-    ax.text(5.65, 2.55, "Module intelligence artificielle", fontsize=8, color=SLATE, fontweight="bold")
+                                fc=LAYER_D, ec=PURPLE, lw=1.4, ls="--", zorder=0))
+    ax.text(5.65, 2.55, "Module intelligence artificielle", fontsize=8, color=PURPLE, fontweight="bold")
     rounded_box(ax, (5.9, 1.55), 3.8, 0.75, "LangChain — Pipeline RAG",
-                fc=WHITE, ec=SLATE, fontsize=9, bold=True)
+                fc=BOX_D, ec=PURPLE, fontsize=9, bold=True)
     rounded_box(ax, (5.9, 0.55), 1.7, 0.75, "ChromaDB",
-                fc=WHITE, ec=SLATE, fontsize=9, bold=True, sub="Vecteurs")
+                fc=WHITE, ec=PURPLE, fontsize=9, bold=True, sub="Vecteurs")
     rounded_box(ax, (7.85, 0.55), 1.85, 0.75, "LLM",
-                fc=WHITE, ec=SLATE, fontsize=9, bold=True, sub="Génération")
-    arrow(ax, (7.0, 1.55), (6.75, 1.3))
-    arrow(ax, (8.5, 1.55), (8.7, 1.3))
+                fc=WHITE, ec=PURPLE, fontsize=9, bold=True, sub="Génération")
+    arrow(ax, (7.0, 1.55), (6.75, 1.3), color=PURPLE)
+    arrow(ax, (8.5, 1.55), (8.7, 1.3), color=PURPLE)
 
     save(fig, "figure_2_1_architecture.png")
 
+
+def fig_connecteurs():
+    fig, ax = plt.subplots(figsize=(11.2, 5.2))
+    ax.set_xlim(0, 11.2)
+    ax.set_ylim(0, 5.2)
+    ax.axis("off")
+    ax.set_title(
+        "Interconnexion de la plateforme Nouvelair",
+        fontsize=13, fontweight="bold", color=NAVY, pad=8,
+    )
+    ax.text(
+        5.6, 4.75,
+        "Consolidation de LATA Aviation eLearning, Ideagen Luminate et AirbusWorld",
+        ha="center", fontsize=9, color=BORDER, style="italic",
+    )
+
+    sources = [
+        (0.4, 3.35, "LATA Aviation eLearning", LAYER_A, NAVY, "API LATA"),
+        (0.4, 2.05, "Ideagen Luminate", LAYER_B, TEAL, "API Ideagen"),
+        (0.4, 0.75, "AirbusWorld", LAYER_C, ACCENT, "API Airbus"),
+    ]
+    for x, y, label, fc, ec, api in sources:
+        rounded_box(ax, (x, y), 3.4, 0.85, label, fc=fc, ec=ec, fontsize=9.5, bold=True)
+        mid_y = y + 0.42
+        ax.annotate(
+            "", xy=(6.0, 2.55), xytext=(x + 3.45, mid_y),
+            arrowprops=dict(arrowstyle="-|>", color=ec, lw=1.4),
+        )
+        ax.text(
+            (x + 3.45 + 6.0) / 2, mid_y + 0.18, api,
+            ha="center", fontsize=7.5, color=ec, fontweight="bold",
+            bbox=dict(boxstyle="round,pad=0.18", fc=WHITE, ec=ec, lw=1.0),
+        )
+
+    rounded_box(
+        ax, (6.1, 1.55), 4.6, 2.0,
+        "Plateforme Nouvelair KB",
+        fc=BOX_A, ec=NAVY, fontsize=11, bold=True,
+        sub="Front + Back Office + API\nPoint d'accès unifié",
+    )
+    ax.add_patch(FancyBboxPatch(
+        (0.4, 0.12), 10.4, 0.42,
+        boxstyle="round,pad=0.01,rounding_size=0.04",
+        fc=SOFT, ec=BORDER, lw=0.9, zorder=2,
+    ))
+    ax.text(
+        5.6, 0.33,
+        "Intégration via API REST : synchronisation des métadonnées et références documentaires",
+        ha="center", fontsize=8, color=SLATE, zorder=3,
+    )
+    save(fig, "figure_2_1b_connecteurs_nouvelair.png")
 
 # ─────────────────────────────────────────────────────────────
 # Figure 2.2 — Pipeline assistant
@@ -163,10 +221,14 @@ def fig_pipeline():
 
     for i, (num, title, sub) in enumerate(steps):
         x = x0 + i * (w + gap)
-        fc = LAYER_A if i in (0, 6) else (LAYER_B if i in (1, 2, 4) else LIGHT)
-        rounded_box(ax, (x, y), w, h, title, fc=fc, ec=NAVY, fontsize=8.5, bold=True, sub=sub)
-        # numéro
-        circ = plt.Circle((x + 0.18, y + h - 0.18), 0.14, fc=NAVY, ec=NAVY, zorder=4)
+        if i in (0, 6):
+            fc, ec, badge = LAYER_A, NAVY, NAVY
+        elif i in (1, 2, 4):
+            fc, ec, badge = LAYER_B, TEAL, TEAL
+        else:
+            fc, ec, badge = LAYER_D, PURPLE, PURPLE
+        rounded_box(ax, (x, y), w, h, title, fc=fc, ec=ec, fontsize=8.5, bold=True, sub=sub)
+        circ = plt.Circle((x + 0.18, y + h - 0.18), 0.14, fc=badge, ec=badge, zorder=4)
         ax.add_patch(circ)
         ax.text(x + 0.18, y + h - 0.18, num, ha="center", va="center",
                 color=WHITE, fontsize=7, fontweight="bold", zorder=5)
@@ -210,14 +272,19 @@ def fig_indexation():
 
     for i, (num, title, sub) in enumerate(steps):
         x = x0 + i * (w + gap)
-        fc = LAYER_C if i <= 2 else (LAYER_B if i >= 5 else LIGHT)
-        rounded_box(ax, (x, y), w, h, title, fc=fc, ec=NAVY, fontsize=8.5, bold=True, sub=sub)
-        circ = plt.Circle((x + 0.18, y + h - 0.18), 0.14, fc=ACCENT if i <= 2 else TEAL, ec="none", zorder=4)
+        if i <= 2:
+            fc, ec, badge = LAYER_C, ACCENT, ACCENT
+        elif i >= 5:
+            fc, ec, badge = LAYER_D, PURPLE, PURPLE
+        else:
+            fc, ec, badge = LAYER_B, TEAL, TEAL
+        rounded_box(ax, (x, y), w, h, title, fc=fc, ec=ec, fontsize=8.5, bold=True, sub=sub)
+        circ = plt.Circle((x + 0.18, y + h - 0.18), 0.14, fc=badge, ec="none", zorder=4)
         ax.add_patch(circ)
-        ax.text(x +.18, y + h - 0.18, num, ha="center", va="center",
+        ax.text(x + 0.18, y + h - 0.18, num, ha="center", va="center",
                 color=WHITE, fontsize=7, fontweight="bold", zorder=5)
         if i < len(steps) - 1:
-            arrow(ax, (x + w + 0.02, y + h / 2), (x + w + gap - 0.02, y + h / 2), color=SLATE)
+            arrow(ax, (x + w + 0.02, y + h / 2), (x + w + gap - 0.02, y + h / 2), color=BORDER)
 
     ax.text(
         5.75, 0.45,
@@ -330,14 +397,17 @@ def fig_classes():
     )
 
     role = class_box(ax, 0.5, 8.55, 2.7, "Rôle",
-                     ["- id : int", "- nom : string"])
+                     ["- id : int", "- nom : string"],
+                     header_fc=NAVY)
     user = class_box(ax, 5.2, 7.9, 3.5, "Utilisateur",
                      ["- id : int", "- nom : string", "- prenom : string",
                       "- email : string", "- motDePasse : string",
                       "- dateCreation : datetime"],
-                     ["+ sAuthentifier()"])
+                     ["+ sAuthentifier()"],
+                     header_fc=NAVY)
     cat = class_box(ax, 10.6, 8.4, 2.9, "Catégorie",
-                    ["- id : int", "- nom : string", "- description : string"])
+                    ["- id : int", "- nom : string", "- description : string"],
+                    header_fc=TEAL)
 
     res = class_box(ax, 4.8, 3.85, 4.3, "RessourceDeConnaissance",
                     ["- id : int", "- titre : string", "- type : enum",
@@ -345,21 +415,21 @@ def fig_classes():
                      "- dateAjout : datetime", "- estIndexe : boolean"],
                     ["+ ajouter()", "+ modifier()",
                      "+ supprimer()", "+ telecharger()"],
-                    header_fc=TEAL)
+                    header_fc=ACCENT)
 
     sess = class_box(ax, 0.4, 1.2, 3.3, "SessionAssistant",
                      ["- id : int", "- dateDebut : datetime",
                       "- dateDerniereActivite : datetime"],
-                     header_fc=NAVY)
+                     header_fc=PURPLE)
     msg = class_box(ax, 5.15, 1.05, 3.5, "MessageAssistant",
                     ["- id : int", "- texte : text",
                      "- role : enum {user, assistant}",
                      "- dateEnvoi : datetime"],
-                    header_fc=NAVY)
+                    header_fc=PURPLE)
     cit = class_box(ax, 10.1, 1.2, 3.3, "Citation",
                     ["- id : int", "- extrait : text",
                      "- scorePertinence : float"],
-                    header_fc=NAVY)
+                    header_fc=PURPLE)
 
     assoc(ax, _mid(role, "right"), _mid(user, "left"),
           "1", "0..*", "attribue",
@@ -429,10 +499,14 @@ def sequence_diagram(title, actors, messages, filename, lifeline_notes=None):
     bottom_y = 0.45
 
     # headers + lifelines
+    actor_colors = [LAYER_A, LAYER_B, LAYER_B, LAYER_D, LAYER_D, LAYER_C, LAYER_C]
+    actor_edges = [NAVY, TEAL, TEAL, PURPLE, PURPLE, ACCENT, ACCENT]
     for i, name in enumerate(actors):
         w = 1.55
+        fc = actor_colors[i % len(actor_colors)]
+        ec = actor_edges[i % len(actor_edges)]
         rounded_box(ax, (xs[i] - w / 2, header_y - 0.15), w, 0.55,
-                    name, fc=LAYER_A, ec=NAVY, fontsize=7.5, bold=True)
+                    name, fc=fc, ec=ec, fontsize=7.5, bold=True)
         ax.plot([xs[i], xs[i]], [header_y - 0.15, bottom_y],
                 color=BORDER, lw=1, ls="--", zorder=0)
 
@@ -440,11 +514,10 @@ def sequence_diagram(title, actors, messages, filename, lifeline_notes=None):
     for item in messages:
         kind = item[3] if len(item) > 3 else "call"
         if kind == "note":
-            # (None, None, text, 'note') spanning
             ax.add_patch(FancyBboxPatch(
                 (0.4, y - 0.28), fig_w - 0.8, 0.35,
                 boxstyle="round,pad=0.01,rounding_size=0.04",
-                fc=LAYER_A, ec=BORDER, lw=0.9, zorder=2))
+                fc=LAYER_C, ec=ACCENT, lw=0.9, zorder=2))
             ax.text(fig_w / 2, y - 0.1, item[2], ha="center", va="center",
                     fontsize=7, color=SLATE, zorder=3)
             y -= 0.48
@@ -455,13 +528,13 @@ def sequence_diagram(title, actors, messages, filename, lifeline_notes=None):
         x1, x2 = xs[a], xs[b]
         if kind == "return":
             ax.annotate("", xy=(x2, y), xytext=(x1, y),
-                        arrowprops=dict(arrowstyle="-|>", color="#555555",
+                        arrowprops=dict(arrowstyle="-|>", color=BORDER,
                                         lw=1.1, linestyle="--"))
             ax.text((x1 + x2) / 2, y + 0.06, text, ha="center", fontsize=7,
-                    color="#555555", style="italic")
+                    color=BORDER, style="italic")
         elif kind == "self":
             ax.annotate("", xy=(x1 + 0.55, y - 0.18), xytext=(x1, y),
-                        arrowprops=dict(arrowstyle="-|>", color=NAVY, lw=1.2,
+                        arrowprops=dict(arrowstyle="-|>", color=PURPLE, lw=1.2,
                                         connectionstyle="arc3,rad=-0.4"))
             ax.text(x1 + 0.65, y - 0.05, text, ha="left", fontsize=7, color=SLATE)
             y -= 0.15
@@ -525,6 +598,7 @@ def fig_seq_ajout():
 
 if __name__ == "__main__":
     fig_architecture()
+    fig_connecteurs()
     fig_pipeline()
     fig_indexation()
     fig_classes()

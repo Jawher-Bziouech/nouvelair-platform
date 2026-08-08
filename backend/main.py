@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
+from app.api.routes.assistant import router as assistant_router
 from app.api.routes.auth import router as auth_router
 from app.api.routes.categorie import router as categorie_router
 from app.api.routes.dashboard import router as dashboard_router
@@ -9,7 +10,7 @@ from app.api.routes.ressource import router as ressource_router
 from app.api.routes.role import router as role_router
 from app.api.routes.user import router as user_router
 from app.database import Base, engine
-from app.models import categorie, ressource, role, user
+from app.models import assistant, categorie, ressource, role, user  # noqa: F401
 
 Base.metadata.create_all(bind=engine)
 
@@ -57,6 +58,7 @@ app.include_router(user_router)
 app.include_router(categorie_router)
 app.include_router(ressource_router)
 app.include_router(dashboard_router)
+app.include_router(assistant_router)
 
 
 @app.get("/health")

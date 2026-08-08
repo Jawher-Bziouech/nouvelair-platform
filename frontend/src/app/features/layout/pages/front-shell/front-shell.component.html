@@ -12,6 +12,9 @@
         <a routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
           Accueil
         </a>
+        <a routerLink="/home/assistant" routerLinkActive="active">
+          Assistant
+        </a>
         <a
           *ngIf="isManagerOrAdmin"
           routerLink="/home/upload"

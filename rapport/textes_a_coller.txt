@@ -1,5 +1,20 @@
 # Textes à coller dans le rapport (Word / LaTeX)
 
+## §1.6 Étude de l'existant (remplacer / enrichir)
+
+### 1.6.1 Situation actuelle chez Nouvelair
+(ressources dispersées, recherche manuelle, pas d'assistant)
+
+### 1.6.2 Solutions similaires sur le marché
+- Atlassian Confluence
+- Microsoft SharePoint (+ Copilot)
+- Notion
+- Guru / Document360 / Helpjuice
+- Assistants IA d'entreprise (Copilot, Gemini)
+
+Positionnement : ces outils confirment le besoin, mais sont génériques, coûteux
+et non adaptés au référentiel interne Nouvelair + rôles Admin/Manager/Employé.
+
 ## §2.6 — Table 2.3 (remplacer)
 
 | Concept métier | Description |

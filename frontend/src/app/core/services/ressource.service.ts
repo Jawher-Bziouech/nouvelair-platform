@@ -66,6 +66,10 @@ export class RessourceService {
     return this.http.delete<void>(`${this.base}/${id}`);
   }
 
+  reindex(id: number): Observable<Ressource> {
+    return this.http.post<Ressource>(`${this.base}/${id}/reindex`, {});
+  }
+
   downloadUrl(id: number): string {
     return `${this.base}/${id}/download`;
   }

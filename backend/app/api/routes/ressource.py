@@ -15,6 +15,8 @@ from app.crud.ressource import (
 from app.dependencies import get_current_user, get_db, require_roles
 from app.models.user import User
 from app.schemas.ressource import RessourceCreate, RessourceRead, RessourceUpdate
+from app.models.assistant import Citation
+from app.services.indexer import delete_ressource_vectors, index_ressource
 from app.services.storage import delete_stored_file, resolve_stored_path, save_upload
 
 router = APIRouter(prefix="/ressources", tags=["ressources"])
@@ -41,6 +43,18 @@ def _file_meta(ressource) -> tuple[Path, str, str]:
     return path, mime, filename
 
 
+def _safe_index(db: Session, ressource):
+    """Index into the local vector store; never fail HTTP create/update if indexing fails."""
+    try:
+        index_ressource(db, ressource)
+    except Exception:
+        ressource.est_indexe = False
+        db.add(ressource)
+        db.commit()
+        db.refresh(ressource)
+    return get_ressource(db, ressource.id)
+
+
 @router.get("/", response_model=list[RessourceRead])
 def list_ressources(
     categorie_id: int | None = None,
@@ -64,7 +78,7 @@ async def upload_ressource(
 ):
     """
     Create a knowledge resource. File and text content are optional.
-    Use multipart/form-data (Swagger: form fields + optional file).
+    After save, text is chunked and indexed for the assistant (RAG).
     """
     categorie = get_categorie(db, categorie_id)
     if not categorie:
@@ -88,7 +102,8 @@ async def upload_ressource(
         chemin_fichier=relative_path,
         categorie_id=categorie_id,
     )
-    return create_ressource(db, ressource_in, auteur_id=current_user.id)
+    ressource = create_ressource(db, ressource_in, auteur_id=current_user.id)
+    return _safe_index(db, ressource)
 
 
 @router.get("/{ressource_id}", response_model=RessourceRead)
@@ -151,6 +166,37 @@ def preview_ressource(
     )
 
 
+@router.post("/{ressource_id}/reindex", response_model=RessourceRead)
+def reindex_ressource(
+    ressource_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles("Administrateur", "Manager")),
+):
+    """Force re-index of a resource (useful after seed or a failed index)."""
+    ressource = get_ressource(db, ressource_id)
+    if not ressource:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Resource not found",
+        )
+
+    role_name = current_user.role.nom if current_user.role else None
+    if role_name != "Administrateur" and ressource.auteur_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Managers can only reindex their own resources",
+        )
+
+    try:
+        index_ressource(db, ressource)
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Indexing failed: {exc}",
+        ) from exc
+    return get_ressource(db, ressource.id)
+
+
 @router.post("/", response_model=RessourceRead, status_code=status.HTTP_201_CREATED)
 def create_new_ressource(
     ressource_in: RessourceCreate,
@@ -165,7 +211,8 @@ def create_new_ressource(
             detail="Invalid categorie_id",
         )
 
-    return create_ressource(db, ressource_in, auteur_id=current_user.id)
+    ressource = create_ressource(db, ressource_in, auteur_id=current_user.id)
+    return _safe_index(db, ressource)
 
 
 @router.put("/{ressource_id}", response_model=RessourceRead)
@@ -197,7 +244,8 @@ def update_existing_ressource(
                 detail="Invalid categorie_id",
             )
 
-    return update_ressource(db, ressource, ressource_in)
+    ressource = update_ressource(db, ressource, ressource_in)
+    return _safe_index(db, ressource)
 
 
 @router.delete("/{ressource_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -220,6 +268,11 @@ def delete_existing_ressource(
             detail="Managers can only delete their own resources",
         )
 
+    try:
+        delete_ressource_vectors(ressource.id)
+    except Exception:
+        pass
+    db.query(Citation).filter(Citation.ressource_id == ressource.id).delete()
     delete_stored_file(ressource.chemin_fichier)
     delete_ressource(db, ressource)
     return None

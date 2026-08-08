@@ -46,3 +46,34 @@ export interface TokenResponse {
   access_token: string;
   token_type: string;
 }
+
+export interface Citation {
+  id: number;
+  ressource_id: number;
+  extrait: string;
+  score_pertinence?: number | null;
+  titre_ressource?: string | null;
+}
+
+export interface AssistantMessage {
+  id: number;
+  session_id: number;
+  texte: string;
+  role: 'user' | 'assistant' | string;
+  date_envoi?: string | null;
+  citations: Citation[];
+}
+
+export interface AssistantSession {
+  id: number;
+  utilisateur_id: number;
+  date_debut?: string | null;
+  date_derniere_activite?: string | null;
+}
+
+export interface QuestionResponse {
+  session_id: number;
+  question: AssistantMessage;
+  answer: AssistantMessage;
+  mode: 'openai' | 'local' | string;
+}

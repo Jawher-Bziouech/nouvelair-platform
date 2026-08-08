@@ -37,38 +37,45 @@ pdfmetrics.registerFont(TTFont("Times-Bold", r"C:\Windows\Fonts\timesbd.ttf"))
 pdfmetrics.registerFont(TTFont("Times-Italic", r"C:\Windows\Fonts\timesi.ttf"))
 pdfmetrics.registerFont(TTFont("Times-BoldItalic", r"C:\Windows\Fonts\timesbi.ttf"))
 
-# Thème académique classique (rapport original : noir / blanc)
+# Thème académique avec accents Nouvelair (bleu doux)
 BLACK = colors.black
 GRAY = colors.HexColor("#333333")
-LIGHT = colors.HexColor("#F3F3F3")
-LINE = colors.HexColor("#999999")
+MUTED = colors.HexColor("#5A6A7A")
+PRIMARY = colors.HexColor("#0B5CAD")
+PRIMARY_DARK = colors.HexColor("#083D75")
+PRIMARY_SOFT = colors.HexColor("#F0F6FC")
+HEADER_BG = colors.HexColor("#E6EEF7")   # en-tête tableau clair (lisible)
+ROW_ALT = colors.HexColor("#F7FAFD")
+ACCENT = colors.HexColor("#1A7FD4")
+LINE = colors.HexColor("#C5D3E0")
+LIGHT = colors.HexColor("#F4F8FC")
 
 
 def styles():
     s = getSampleStyleSheet()
     s.add(ParagraphStyle(
         name="CoverTitle", fontName="Times-Bold", fontSize=20, leading=26,
-        alignment=TA_CENTER, textColor=BLACK, spaceAfter=14,
+        alignment=TA_CENTER, textColor=PRIMARY_DARK, spaceAfter=14,
     ))
     s.add(ParagraphStyle(
         name="CoverSub", fontName="Times", fontSize=13, leading=17,
-        alignment=TA_CENTER, textColor=BLACK, spaceAfter=8,
+        alignment=TA_CENTER, textColor=GRAY, spaceAfter=8,
     ))
     s.add(ParagraphStyle(
         name="CoverMeta", fontName="Times", fontSize=12, leading=16,
-        alignment=TA_CENTER, textColor=BLACK, spaceBefore=6,
+        alignment=TA_CENTER, textColor=PRIMARY, spaceBefore=6,
     ))
     s.add(ParagraphStyle(
         name="HChapter", fontName="Times-Bold", fontSize=16, leading=20,
-        textColor=BLACK, spaceBefore=6, spaceAfter=14,
+        textColor=PRIMARY_DARK, spaceBefore=6, spaceAfter=14,
     ))
     s.add(ParagraphStyle(
         name="HSection", fontName="Times-Bold", fontSize=12, leading=16,
-        textColor=BLACK, spaceBefore=14, spaceAfter=8,
+        textColor=PRIMARY, spaceBefore=14, spaceAfter=8,
     ))
     s.add(ParagraphStyle(
         name="HSub", fontName="Times-Bold", fontSize=11, leading=14,
-        textColor=BLACK, spaceBefore=10, spaceAfter=6,
+        textColor=PRIMARY_DARK, spaceBefore=10, spaceAfter=6,
     ))
     s.add(ParagraphStyle(
         name="Body", fontName="Times", fontSize=11, leading=15,
@@ -80,7 +87,7 @@ def styles():
     ))
     s.add(ParagraphStyle(
         name="Caption", fontName="Times-Italic", fontSize=10, leading=13,
-        alignment=TA_CENTER, textColor=BLACK, spaceBefore=4, spaceAfter=12,
+        alignment=TA_CENTER, textColor=MUTED, spaceBefore=4, spaceAfter=12,
     ))
     s.add(ParagraphStyle(
         name="TOCEntry", fontName="Times", fontSize=11, leading=15,
@@ -88,7 +95,7 @@ def styles():
     ))
     s.add(ParagraphStyle(
         name="Quote", fontName="Times-Italic", fontSize=11, leading=15,
-        alignment=TA_CENTER, textColor=BLACK, spaceBefore=8, spaceAfter=8,
+        alignment=TA_CENTER, textColor=PRIMARY_DARK, spaceBefore=8, spaceAfter=8,
         leftIndent=20, rightIndent=20,
     ))
     s.add(ParagraphStyle(
@@ -97,10 +104,10 @@ def styles():
     ))
     s.add(ParagraphStyle(
         name="TableHead", fontName="Times-Bold", fontSize=9, leading=12,
-        textColor=BLACK,
+        textColor=PRIMARY_DARK,
     ))
     s.add(ParagraphStyle(
-        name="Footer", fontName="Times", fontSize=9, textColor=GRAY,
+        name="Footer", fontName="Times", fontSize=9, textColor=MUTED,
         alignment=TA_CENTER,
     ))
     return s
@@ -153,13 +160,13 @@ def make_table(headers, rows, col_widths=None):
         data.append([Paragraph(str(c), S["TableCell"]) for c in row])
     t = Table(data, colWidths=col_widths, repeatRows=1)
     t.setStyle(TableStyle([
-        ("BACKGROUND", (0, 0), (-1, 0), LIGHT),
-        ("TEXTCOLOR", (0, 0), (-1, 0), BLACK),
+        ("BACKGROUND", (0, 0), (-1, 0), HEADER_BG),
+        ("TEXTCOLOR", (0, 0), (-1, 0), PRIMARY_DARK),
         ("BACKGROUND", (0, 1), (-1, -1), colors.white),
-        ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, LIGHT]),
-        ("GRID", (0, 0), (-1, -1), 0.5, LINE),
-        ("BOX", (0, 0), (-1, -1), 0.8, BLACK),
-        ("LINEBELOW", (0, 0), (-1, 0), 0.8, BLACK),
+        ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, ROW_ALT]),
+        ("GRID", (0, 0), (-1, -1), 0.4, LINE),
+        ("BOX", (0, 0), (-1, -1), 0.8, LINE),
+        ("LINEBELOW", (0, 0), (-1, 0), 1.5, PRIMARY),
         ("VALIGN", (0, 0), (-1, -1), "TOP"),
         ("LEFTPADDING", (0, 0), (-1, -1), 5),
         ("RIGHTPADDING", (0, 0), (-1, -1), 5),
@@ -176,23 +183,42 @@ class Doc(BaseDocTemplate):
             pagesize=A4,
             leftMargin=2 * cm,
             rightMargin=2 * cm,
-            topMargin=2 * cm,
+            topMargin=2.2 * cm,
             bottomMargin=2 * cm,
         )
         frame = Frame(self.leftMargin, self.bottomMargin, self.width, self.height, id="normal")
-        self.addPageTemplates([PageTemplate(id="main", frames=frame, onPage=self._footer)])
+        self.addPageTemplates([PageTemplate(id="main", frames=frame, onPage=self._decorate)])
 
-    def _footer(self, canvas, doc):
+    def _decorate(self, canvas, doc):
         canvas.saveState()
         page = canvas.getPageNumber()
-        if page > 1:
-            canvas.setStrokeColor(LINE)
-            canvas.setLineWidth(0.5)
+        w, h = A4
+        if page == 1:
+            canvas.setFillColor(PRIMARY)
+            canvas.rect(0, h - 1.1 * cm, w, 1.1 * cm, fill=1, stroke=0)
+            canvas.setFillColor(ACCENT)
+            canvas.rect(0, h - 1.35 * cm, w, 0.25 * cm, fill=1, stroke=0)
+            canvas.setFillColor(PRIMARY_DARK)
+            canvas.rect(0, 0, w, 1.1 * cm, fill=1, stroke=0)
+            canvas.setFillColor(colors.white)
+            canvas.setFont("Times", 10)
+            canvas.drawCentredString(w / 2, 0.45 * cm, "Nouvelair — Plateforme de gestion des connaissances")
+        else:
+            canvas.setStrokeColor(PRIMARY)
+            canvas.setLineWidth(1.2)
+            canvas.line(2 * cm, h - 1.2 * cm, w - 2 * cm, h - 1.2 * cm)
+            canvas.setFillColor(PRIMARY)
+            canvas.setFont("Times", 8)
+            canvas.drawString(2 * cm, h - 1.05 * cm, "Rapport — Nouvelair Knowledge Platform")
+            canvas.setFillColor(MUTED)
+            canvas.drawRightString(w - 2 * cm, h - 1.05 * cm, "Jawher Bziouech")
+            canvas.setStrokeColor(ACCENT)
+            canvas.setLineWidth(0.8)
             y = 1.4 * cm
-            canvas.line(2 * cm, y + 8, A4[0] - 2 * cm, y + 8)
+            canvas.line(2 * cm, y + 8, w - 2 * cm, y + 8)
             canvas.setFont("Times", 9)
-            canvas.setFillColor(GRAY)
-            canvas.drawCentredString(A4[0] / 2, y, f"{page}")
+            canvas.setFillColor(PRIMARY_DARK)
+            canvas.drawCentredString(w / 2, y, f"{page}")
         canvas.restoreState()
 
 
@@ -215,26 +241,55 @@ def build():
     story.append(P("Version preview 6 — figures et modèle métier corrigés", "CoverMeta"))
     story.append(PageBreak())
 
-    # ── TOC (simplified static) ──
+    # ── TOC ──
     story.append(P("Table des matières", "HChapter"))
     toc = [
         "Introduction générale",
-        "1. Étude préliminaire",
-        "    1.1 – 1.15  Contexte, besoins, méthodologie, analyse métier, environnement",
-        "2. Analyse et conception de la solution",
+        "Chapitre 1 — Étude préliminaire",
+        "    1.1 Introduction",
+        "    1.2 Présentation de l'entreprise",
+        "    1.3 Contexte du projet",
+        "    1.4 Problématique",
+        "    1.5 Objectifs du projet",
+        "    1.6 Étude de l'existant",
+        "        1.6.1 Situation actuelle chez Nouvelair",
+        "        1.6.2 Solutions similaires sur le marché",
+        "    1.7 Critique de l'existant",
+        "    1.8 Solution proposée",
+        "    1.9 Comparaison entre l'existant et la solution proposée",
+        "    1.10 Identification des acteurs",
+        "        1.10.1 Administrateur",
+        "        1.10.2 Manager",
+        "        1.10.3 Employé",
+        "    1.11 Analyse des besoins",
+        "        1.11.1 Besoins fonctionnels",
+        "        1.11.2 Besoins non fonctionnels",
+        "        1.11.3 Contraintes",
+        "    1.12 Méthodologie de développement",
+        "        1.12.1 Les rôles Scrum",
+        "        1.12.2 Planification des sprints",
+        "    1.13 Environnement de travail",
+        "    1.14 Conclusion",
+        "Chapitre 2 — Analyse et conception de la solution",
         "    2.1 Introduction",
         "    2.2 Vision du produit",
-        "    2.3 User Stories",
-        "    2.4 Product Backlog",
-        "    2.5 Architecture générale de la solution",
-        "    2.6 Architecture métier",
-        "    2.7 Architecture du module d'intelligence artificielle",
-        "    2.8 Indexation des ressources de connaissance",
-        "    2.9 Diagramme de cas d'utilisation",
-        "    2.10 Description textuelle des cas d'utilisation principaux",
-        "    2.11 Diagramme de classes",
-        "    2.12 Diagramme de séquence — Poser une question",
-        "    2.13 Diagramme de séquence — Ajouter une ressource",
+        "    2.3 Analyse métier",
+        "        2.3.1 Ressource de connaissance",
+        "        2.3.2 Utilisateur",
+        "        2.3.3 Assistant intelligent",
+        "        2.3.4 Catégorie",
+        "        2.3.5 Session avec l'assistant",
+        "    2.4 User Stories",
+        "    2.5 Product Backlog",
+        "    2.6 Architecture générale de la solution",
+        "    2.7 Architecture métier",
+        "    2.8 Architecture du module d'intelligence artificielle",
+        "    2.9 Indexation des ressources de connaissance",
+        "    2.10 Diagrammes de cas d'utilisation",
+        "    2.11 Description textuelle des cas d'utilisation principaux",
+        "    2.12 Diagramme de classes",
+        "    2.13 Diagramme de séquence — Poser une question",
+        "    2.14 Diagramme de séquence — Ajouter une ressource",
     ]
     for e in toc:
         story.append(P(e, "TOCEntry"))
@@ -305,10 +360,10 @@ def build():
         "coordination entre services."
     ))
     story.append(P(
-        "Or, lorsque les ressources sont dispersées ou difficiles à retrouver, la recherche "
-        "d'information devient plus longue et moins efficace. Nouvelair souhaite donc mettre en place "
-        "une plateforme web de gestion des connaissances, détaillée à la section 1.9, permettant de "
-        "centraliser ses ressources et d'en faciliter la consultation."
+        "Dans le cadre de sa digitalisation, Nouvelair cherche à améliorer la circulation de "
+        "l'information interne et à réduire le temps passé à localiser les documents utiles. "
+        "Ce contexte motive l'analyse de la problématique ci-dessous, avant de définir les "
+        "objectifs du projet et la solution proposée."
     ))
 
     story.append(P("1.4 Problématique", "HSection"))
@@ -342,8 +397,9 @@ def build():
 
     story.append(P("1.5 Objectifs du projet", "HSection"))
     story.append(P(
-        "L'objectif principal de ce projet est de concevoir et développer une plateforme web "
-        "intelligente de gestion des connaissances destinée aux collaborateurs de Nouvelair."
+        "À partir de la problématique formulée ci-dessus, l'objectif principal de ce projet "
+        "est de concevoir et développer une plateforme web intelligente de gestion des "
+        "connaissances destinée aux collaborateurs de Nouvelair."
     ))
     story.append(P("Les objectifs spécifiques sont les suivants :"))
     story.extend(bullets([
@@ -361,55 +417,115 @@ def build():
 
     story.append(P("1.6 Étude de l'existant", "HSection"))
     story.append(P(
-        "Actuellement, Nouvelair dispose de plusieurs ressources — documents internes, procédures, "
-        "publications — permettant aux collaborateurs d'accéder aux informations nécessaires à "
-        "leurs activités."
+        "L'étude de l'existant porte sur deux dimensions : d'une part le fonctionnement actuel "
+        "au sein de Nouvelair, d'autre part les solutions du marché qui proposent déjà une "
+        "approche proche de la nôtre (base de connaissances d'entreprise, parfois enrichie "
+        "d'un assistant intelligent)."
+    ))
+
+    story.append(P("1.6.1 Situation actuelle chez Nouvelair", "HSub"))
+    story.append(P(
+        "Actuellement, Nouvelair s'appuie déjà sur plusieurs outils pour la formation, la "
+        "documentation technique et le partage d'informations. On retrouve notamment "
+        "LATA Aviation eLearning (formation), Ideagen Luminate (gestion documentaire / "
+        "conformité) et AirbusWorld (documentation constructeur)."
+    ))
+    story.extend(bullets([
+        "LATA Aviation eLearning est principalement utilisé pour les modules de formation "
+        "réglementaires (sécurité, procédures opérationnelles, conformité), avec suivi des "
+        "sessions et de la progression des collaborateurs.",
+        "Ideagen Luminate sert à diffuser et maintenir des documents internes contrôlés "
+        "(procédures, notes qualité, versions validées), avec une logique de gouvernance "
+        "documentaire orientée conformité.",
+        "AirbusWorld est consulté comme référentiel technique constructeur : manuels, "
+        "références de maintenance et informations avion nécessaires aux équipes concernées.",
+    ]))
+    story.append(P(
+        "Cependant, ces sources restent réparties entre plusieurs plateformes, avec des logiques "
+        "d'accès et des interfaces différentes. La recherche d'une information précise nécessite "
+        "souvent de naviguer manuellement entre ces outils ou de solliciter un responsable. "
+        "Il n'existe pas encore un point d'accès unique intégrant un assistant intelligent "
+        "capable d'exploiter ces connaissances de façon unifiée."
+    ))
+
+    story.append(P("1.6.2 Solutions similaires sur le marché", "HSub"))
+    story.append(P(
+        "Plusieurs plateformes commerciales adressent déjà la gestion et le partage des "
+        "connaissances en entreprise. Leur analyse permet de positionner notre projet et "
+        "d'identifier les fonctionnalités attendues, ainsi que les limites d'une adoption "
+        "« clé en main » dans le contexte de Nouvelair."
+    ))
+    story.extend(bullets([
+        "Atlassian Confluence : wiki d'entreprise largement utilisé pour rédiger, organiser "
+        "et partager des pages documentaires ; très complet en collaboration, mais relativement "
+        "lourd à administrer et peu orienté assistant conversationnel métier par défaut.",
+        "Microsoft SharePoint : solution de gestion documentaire et d'intranet, souvent "
+        "couplée à Microsoft 365 ; pertinente pour le stockage et les droits d'accès, mais "
+        "la recherche et le dialogue en langage naturel dépendent d'outils complémentaires "
+        "(Copilot, Azure AI) et d'une intégration coûteuse.",
+        "Notion : espace de travail flexible (notes, bases, wikis) apprécié pour sa simplicité ; "
+        "adapté aux équipes agiles, mais moins conçu comme un référentiel de procédures "
+        "opérationnelles avec gouvernance stricte des rôles.",
+        "Guru / Document360 / Helpjuice : bases de connaissances dédiées (knowledge base), "
+        "avec catégories, recherche et parfois suggestions IA ; souvent orientées support "
+        "client ou documentation produit plutôt qu'un SI métier interne sur mesure.",
+        "Assistants IA d'entreprise (ex. Microsoft Copilot, Google Gemini for Workspace) : "
+        "permettent d'interroger des documents, mais s'appuient sur un écosystème propriétaire "
+        "et ne remplacent pas à eux seuls une plateforme de publication et de contrôle des "
+        "ressources validées.",
+    ]))
+    story.append(P(
+        "Ces solutions confirment un besoin réel de centralisation et, de plus en plus, "
+        "d'assistance intelligente. En revanche, elles restent génériques, parfois coûteuses "
+        "(licences, cloud, intégration) et ne sont pas conçues spécifiquement pour le "
+        "référentiel interne de Nouvelair ni pour un contrôle fin des rôles "
+        "(Administrateur, Manager, Employé) tel que défini dans ce projet."
+    ))
+    story.append(Spacer(1, 6))
+    story.append(make_table(
+        ["Solution", "Points forts", "Limites pour Nouvelair"],
+        [
+            ["Confluence",
+             "Wiki collaboratif mature, espaces et permissions.",
+             "Complexité, coût, assistant métier non natif."],
+            ["SharePoint",
+             "GED Microsoft 365, droits d'accès avancés.",
+             "Dépendance à l'écosystème Microsoft / Copilot."],
+            ["Notion",
+             "Interface simple, publication rapide.",
+             "Gouvernance et procédures métier moins adaptées."],
+            ["Guru / Document360",
+             "Knowledge base dédiée, recherche, IA parfois.",
+             "Orientation support / SaaS, personnalisation limitée."],
+            ["Copilot / Gemini",
+             "Questions en langage naturel sur des docs.",
+             "Pas une plateforme de publication métier autonome."],
+        ],
+        col_widths=[3.5 * cm, 6.2 * cm, 6.3 * cm],
     ))
     story.append(P(
-        "Ces ressources sont consultées manuellement selon les besoins de chaque service : la "
-        "recherche d'une information spécifique nécessite souvent de parcourir plusieurs documents "
-        "ou de solliciter un responsable. Aucun système intelligent n'est aujourd'hui disponible "
-        "pour exploiter automatiquement ces connaissances."
+        "Table 1.1 — Comparaison des principales solutions similaires du marché",
+        "Caption",
     ))
 
     story.append(P("1.7 Critique de l'existant", "HSection"))
     story.append(P(
-        "Cette étude met en évidence plusieurs limites. La navigation manuelle, peu adaptée à un "
-        "volume important de ressources, allonge le temps nécessaire pour retrouver un document "
-        "ou une procédure."
+        "Chez Nouvelair, la navigation manuelle, peu adaptée à un volume important de ressources, "
+        "allonge le temps nécessaire pour retrouver un document ou une procédure. Les collaborateurs "
+        "doivent souvent solliciter un responsable, ce qui ralentit l'accès à l'information et "
+        "limite le partage des connaissances."
     ))
     story.append(P(
-        "Les collaborateurs doivent aussi solliciter directement un responsable pour obtenir "
-        "une réponse, ce qui ralentit l'accès à l'information et limite le partage des connaissances. "
-        "Enfin, l'absence d'un assistant intelligent empêche de fournir des réponses rapides et "
-        "contextualisées à partir des documents disponibles."
+        "Du côté du marché, les outils présentés répondent partiellement au besoin, mais "
+        "présentent des freins pour le contexte du stage : coût de licence, dépendance à un "
+        "écosystème cloud propriétaire, courbe d'apprentissage, et absence d'un assistant "
+        "conversationnel fondé exclusivement sur les ressources validées de l'entreprise "
+        "(avec citations et traçabilité). L'existant, qu'il soit interne ou commercial, "
+        "ne couvre donc pas pleinement le besoin d'une plateforme légère, maîtrisée et "
+        "adaptée aux processus de Nouvelair."
     ))
 
-    story.append(P("1.8 Comparaison entre l'existant et la solution proposée", "HSection"))
-    story.append(P(
-        "Afin de mieux mettre en évidence les améliorations apportées par la solution développée, "
-        "le tableau 1.1 présente une comparaison entre le fonctionnement actuel et le système proposé."
-    ))
-    story.append(Spacer(1, 6))
-    story.append(make_table(
-        ["Existant", "Solution proposée"],
-        [
-            ["Informations réparties sur plusieurs supports",
-             "Plateforme centralisée de gestion des connaissances."],
-            ["Recherche principalement basée sur des mots-clés",
-             "Recherche intelligente assistée par intelligence artificielle."],
-            ["Consultation manuelle des documents",
-             "Réponses en langage naturel fournies par un assistant conversationnel."],
-            ["Absence de centralisation des publications et documents",
-             "Gestion unifiée des ressources de connaissance."],
-            ["Recherche parfois longue et peu intuitive",
-             "Accès rapide aux informations avec affichage des sources."],
-        ],
-        col_widths=[8 * cm, 8 * cm],
-    ))
-    story.append(P("Table 1.1 — Comparaison entre l'existant et la solution proposée", "Caption"))
-
-    story.append(P("1.9 Solution proposée", "HSection"))
+    story.append(P("1.8 Solution proposée", "HSection"))
     story.append(P(
         "Afin de répondre aux limites identifiées, il est proposé de développer une plateforme web "
         "intelligente dédiée à la gestion et au partage des connaissances de Nouvelair."
@@ -424,6 +540,54 @@ def build():
         "répondant aux questions des utilisateurs à partir des contenus validés. Cette approche "
         "vise à améliorer l'accès à l'information et à réduire le temps consacré à la recherche "
         "documentaire."
+    ))
+    story.append(P(
+        "La solution intègre également un axe d'interconnexion avec les outils déjà utilisés "
+        "chez Nouvelair (LATA Aviation eLearning, Ideagen Luminate, AirbusWorld) via des "
+        "connecteurs API. Cette liaison permet d'alimenter la plateforme avec des métadonnées "
+        "et des références documentaires issues de ces applications, afin d'offrir une consultation "
+        "unifiée dans une seule interface."
+    ))
+
+    story.append(P("1.9 Comparaison entre l'existant et la solution proposée", "HSection"))
+    story.append(P(
+        "Afin de mieux mettre en évidence les améliorations apportées par la solution développée, "
+        "le tableau 1.2 compare le fonctionnement actuel, les approches du marché et le système proposé."
+    ))
+    story.append(Spacer(1, 6))
+    story.append(make_table(
+        ["Critère", "Existant Nouvelair", "Solutions du marché", "Solution proposée"],
+        [
+            ["Centralisation",
+             "Supports dispersés",
+             "Oui (wiki / GED / KB)",
+             "Plateforme unique dédiée"],
+            ["Publication interne",
+             "Peu formalisée",
+             "Oui, souvent générique",
+             "Rôles Admin / Manager / Employé"],
+            ["Recherche",
+             "Manuelle / mots-clés",
+             "Recherche avancée + parfois IA",
+             "Filtres + assistant RAG prévu"],
+            ["Assistant conversationnel",
+             "Absent",
+             "Souvent option payante / externe",
+             "Intégré, basé sur contenus validés"],
+            ["Traçabilité des réponses",
+             "Non",
+             "Variable selon l'outil",
+             "Citations des ressources sources"],
+            ["Coût / maîtrise",
+             "Faible mais inefficace",
+             "Licences et dépendance éditeur",
+             "Solution interne, adaptée au besoin"],
+        ],
+        col_widths=[3.2 * cm, 3.8 * cm, 4.5 * cm, 4.5 * cm],
+    ))
+    story.append(P(
+        "Table 1.2 — Comparaison entre l'existant, le marché et la solution proposée",
+        "Caption",
     ))
 
     story.append(P("1.10 Identification des acteurs", "HSection"))
@@ -527,7 +691,7 @@ def build():
         ],
         col_widths=[5 * cm, 11 * cm],
     ))
-    story.append(P("Table 1.2 — Répartition des rôles Scrum", "Caption"))
+    story.append(P("Table 1.3 — Répartition des rôles Scrum", "Caption"))
 
     story.append(P("1.12.2 Planification des sprints", "HSub"))
     story.append(P(
@@ -550,80 +714,12 @@ def build():
         ],
         col_widths=[2.2 * cm, 2.6 * cm, 3.4 * cm, 3.2 * cm, 4.6 * cm],
     ))
-    story.append(P("Table 1.3 — Planification prévisionnelle des sprints", "Caption"))
+    story.append(P("Table 1.4 — Planification prévisionnelle des sprints", "Caption"))
 
-    story.append(P("1.13 Conclusion", "HSection"))
-    story.append(P(
-        "Ce chapitre a présenté le contexte du projet et les besoins ayant conduit à la conception "
-        "de la plateforme de gestion des connaissances de Nouvelair, ainsi que les limites de "
-        "l'existant justifiant une solution centralisée intégrant un assistant intelligent. Les besoins "
-        "fonctionnels et non fonctionnels ont ensuite été identifiés, avant de présenter la méthodologie "
-        "Agile Scrum retenue pour conduire le développement du projet."
-    ))
-    story.append(P(
-        "Le chapitre suivant est consacré à l'analyse et à la conception de la solution : diagrammes "
-        "UML, architecture logicielle ainsi que conception de la base de données."
-    ))
-
-    story.append(P("1.14 Analyse métier", "HSection"))
-    story.append(P(
-        "Avant de procéder à la conception technique de la plateforme, il est nécessaire d'identifier "
-        "les principaux concepts métier manipulés par le système. Cette étape permet de définir un "
-        "vocabulaire commun qui servira de référence durant les phases de conception, de développement "
-        "et de maintenance de l'application."
-    ))
-    story.append(P(
-        "Contrairement à une plateforme documentaire classique, la solution proposée repose "
-        "sur une approche orientée gestion des connaissances. Ainsi, l'ensemble des informations "
-        "exploitées par la plateforme est représenté sous la forme de ressources de connaissance."
-    ))
-    story.append(P("1.14.1 Ressource de connaissance", "HSub"))
-    story.append(P(
-        "La ressource de connaissance constitue le concept central de la plateforme. Elle représente "
-        "toute information officielle pouvant être consultée par les collaborateurs de Nouvelair."
-    ))
-    story.append(P("Une ressource de connaissance peut correspondre à :"))
-    story.extend(bullets([
-        "un document PDF ;",
-        "un document Word ;",
-        "une procédure interne ;",
-        "une note de service ;",
-        "une publication interne ;",
-        "un guide technique ;",
-        "toute autre information validée par l'entreprise.",
-    ]))
-    story.append(P("1.14.2 Utilisateur", "HSub"))
-    story.append(P(
-        "Un utilisateur représente une personne autorisée à accéder à la plateforme. Selon son rôle, "
-        "il dispose de différents niveaux d'autorisation lui permettant de consulter, publier ou "
-        "administrer les ressources de connaissance."
-    ))
-    story.append(P("1.14.3 Assistant intelligent", "HSub"))
-    story.append(P(
-        "L'assistant intelligent constitue le module chargé d'interpréter les questions formulées par "
-        "les collaborateurs. Il exploite exclusivement les ressources de connaissance disponibles dans "
-        "la plateforme afin de générer des réponses fiables et contextualisées. Chaque réponse est "
-        "accompagnée des références des ressources utilisées afin d'assurer la traçabilité des "
-        "informations fournies."
-    ))
-    story.append(P("1.14.4 Catégorie", "HSub"))
-    story.append(P(
-        "Les ressources de connaissance sont regroupées selon des catégories facilitant leur organisation "
-        "et leur consultation. Cette classification permet également d'améliorer la recherche "
-        "d'informations et l'administration de la plateforme."
-    ))
-    story.append(P("1.14.5 Session avec l'assistant", "HSub"))
-    story.append(P(
-        "Une session d'assistant représente l'ensemble des échanges entre un collaborateur et "
-        "l'assistant intelligent (historique RAG). Chaque session est composée d'une succession de "
-        "messages (questions utilisateur / réponses assistant). Il ne s'agit pas d'un forum : "
-        "une publication interne est un type de ressource de connaissance, sans entités Post ou Commentaire."
-    ))
-
-    story.append(P("1.15 Environnement de travail", "HSection"))
+    story.append(P("1.13 Environnement de travail", "HSection"))
     story.append(P(
         "La mise en place de l'environnement de développement constitue une étape du Sprint 1. "
-        "Le tableau 1.4 présente les langages, frameworks et outils retenus pour la réalisation du projet."
+        "Le tableau 1.5 présente les langages, frameworks et outils retenus pour la réalisation du projet."
     ))
     story.append(make_table(
         ["Catégorie", "Choix retenu"],
@@ -639,7 +735,23 @@ def build():
         ],
         col_widths=[5 * cm, 11 * cm],
     ))
-    story.append(P("Table 1.4 — Environnement de travail", "Caption"))
+    story.append(P("Table 1.5 — Environnement de travail", "Caption"))
+
+    story.append(P("1.14 Conclusion", "HSection"))
+    story.append(P(
+        "Ce chapitre a présenté le contexte du projet et les besoins ayant conduit à la conception "
+        "de la plateforme de gestion des connaissances de Nouvelair. L'étude de l'existant — "
+        "situation interne et solutions similaires du marché (Confluence, SharePoint, Notion, "
+        "knowledge bases, assistants IA) — justifie une solution centralisée, maîtrisée et "
+        "intégrant un assistant intelligent fondé sur les contenus validés. Les acteurs, les besoins "
+        "fonctionnels et non fonctionnels, la méthodologie Agile Scrum ainsi que l'environnement "
+        "technique de développement ont ensuite été définis."
+    ))
+    story.append(P(
+        "Le chapitre suivant est consacré à l'analyse métier, à l'organisation des besoins sous forme "
+        "de User Stories et de Product Backlog, puis à la conception de la solution à travers "
+        "l'architecture logicielle et les diagrammes UML."
+    ))
     story.append(PageBreak())
 
     # ── CHAPTER 2 ──
@@ -651,11 +763,11 @@ def build():
         "ce chapitre est consacré à l'analyse fonctionnelle et à la conception de la solution proposée."
     ))
     story.append(P(
-        "Dans un premier temps, les fonctionnalités du système sont identifiées sous forme de "
-        "User Stories et organisées au sein d'un Product Backlog conformément à la méthodologie "
-        "Agile Scrum. Par la suite, ces besoins sont traduits en modèles UML permettant de décrire "
-        "la structure du système, les interactions entre les différents acteurs ainsi que son "
-        "architecture logicielle."
+        "Dans un premier temps, les concepts métier sont clarifiés, puis les fonctionnalités du "
+        "système sont identifiées sous forme de User Stories et organisées au sein d'un Product "
+        "Backlog conformément à la méthodologie Agile Scrum. Par la suite, ces besoins sont "
+        "traduits en architecture logicielle et en modèles UML décrivant la structure du système "
+        "et les interactions entre les différents acteurs."
     ))
 
     story.append(P("2.2 Vision du produit", "HSection"))
@@ -671,7 +783,62 @@ def build():
         "Améliorer le partage des connaissances grâce à l'intelligence artificielle.",
     ]))
 
-    story.append(P("2.3 User Stories", "HSection"))
+    story.append(P("2.3 Analyse métier", "HSection"))
+    story.append(P(
+        "Avant de procéder à la conception technique de la plateforme, il est nécessaire d'identifier "
+        "les principaux concepts métier manipulés par le système. Cette étape permet de définir un "
+        "vocabulaire commun qui servira de référence durant les phases de conception, de développement "
+        "et de maintenance de l'application."
+    ))
+    story.append(P(
+        "Contrairement à une plateforme documentaire classique, la solution proposée repose "
+        "sur une approche orientée gestion des connaissances. Ainsi, l'ensemble des informations "
+        "exploitées par la plateforme est représenté sous la forme de ressources de connaissance."
+    ))
+    story.append(P("2.3.1 Ressource de connaissance", "HSub"))
+    story.append(P(
+        "La ressource de connaissance constitue le concept central de la plateforme. Elle représente "
+        "toute information officielle pouvant être consultée par les collaborateurs de Nouvelair."
+    ))
+    story.append(P("Une ressource de connaissance peut correspondre à :"))
+    story.extend(bullets([
+        "un document PDF ;",
+        "un document Word ;",
+        "une procédure interne ;",
+        "une note de service ;",
+        "une publication interne ;",
+        "un guide technique ;",
+        "toute autre information validée par l'entreprise.",
+    ]))
+    story.append(P("2.3.2 Utilisateur", "HSub"))
+    story.append(P(
+        "Un utilisateur représente une personne autorisée à accéder à la plateforme. Selon son rôle, "
+        "il dispose de différents niveaux d'autorisation lui permettant de consulter, publier ou "
+        "administrer les ressources de connaissance."
+    ))
+    story.append(P("2.3.3 Assistant intelligent", "HSub"))
+    story.append(P(
+        "L'assistant intelligent constitue le module chargé d'interpréter les questions formulées par "
+        "les collaborateurs. Il exploite exclusivement les ressources de connaissance disponibles dans "
+        "la plateforme afin de générer des réponses fiables et contextualisées. Chaque réponse est "
+        "accompagnée des références des ressources utilisées afin d'assurer la traçabilité des "
+        "informations fournies."
+    ))
+    story.append(P("2.3.4 Catégorie", "HSub"))
+    story.append(P(
+        "Les ressources de connaissance sont regroupées selon des catégories facilitant leur organisation "
+        "et leur consultation. Cette classification permet également d'améliorer la recherche "
+        "d'informations et l'administration de la plateforme."
+    ))
+    story.append(P("2.3.5 Session avec l'assistant", "HSub"))
+    story.append(P(
+        "Une session d'assistant représente l'ensemble des échanges entre un collaborateur et "
+        "l'assistant intelligent (historique RAG). Chaque session est composée d'une succession de "
+        "messages (questions utilisateur / réponses assistant). Il ne s'agit pas d'un forum : "
+        "une publication interne est un type de ressource de connaissance, sans entités Post ou Commentaire."
+    ))
+
+    story.append(P("2.4 User Stories", "HSection"))
     story.append(P(
         "Les besoins fonctionnels précédemment identifiés sont exprimés sous forme de User Stories "
         "afin de faciliter leur planification dans les différents sprints."
@@ -693,7 +860,7 @@ def build():
     ))
     story.append(P("Table 2.1 — Principales User Stories", "Caption"))
 
-    story.append(P("2.4 Product Backlog", "HSection"))
+    story.append(P("2.5 Product Backlog", "HSection"))
     story.append(P(
         "Le Product Backlog regroupe l'ensemble des fonctionnalités prévues pour la première "
         "version de la plateforme."
@@ -711,7 +878,7 @@ def build():
     ))
     story.append(P("Table 2.2 — Product Backlog", "Caption"))
 
-    story.append(P("2.5 Architecture générale de la solution", "HSection"))
+    story.append(P("2.6 Architecture générale de la solution", "HSection"))
     story.append(P(
         "La solution proposée repose sur une architecture web modulaire composée d'une interface "
         "utilisateur, d'une API backend, d'une base de données relationnelle et d'un module "
@@ -724,6 +891,17 @@ def build():
     ))
     story.append(fig(DIAG / "figure_2_1_architecture.png",
                      "Figure 2.1 — Architecture générale de la solution", width=15.5 * cm))
+    story.append(fig(
+        DIAG / "figure_2_1b_connecteurs_nouvelair.png",
+        "Figure 2.1 bis — Interconnexion de la plateforme avec LATA Aviation eLearning, Ideagen Luminate et AirbusWorld",
+        width=15.5 * cm
+    ))
+    story.append(P(
+        "La figure 2.1 bis illustre le principe de liaison entre la plateforme Nouvelair et "
+        "les applications déjà exploitées dans l'entreprise. Les connecteurs API permettent "
+        "de consolider l'accès à l'information sans imposer aux utilisateurs de naviguer "
+        "séparément sur chaque outil."
+    ))
     story.append(P(
         "L'interface utilisateur sera développée avec Angular. Elle permettra aux utilisateurs "
         "d'accéder aux différentes fonctionnalités selon leur rôle : consultation des ressources, "
@@ -745,7 +923,7 @@ def build():
         "réponses contextualisées à partir des ressources validées."
     ))
 
-    story.append(P("2.6 Architecture métier", "HSection"))
+    story.append(P("2.7 Architecture métier", "HSection"))
     story.append(P(
         "La plateforme repose sur le concept central de <b>ressource de connaissance</b>. Une ressource "
         "représente toute information officielle pouvant être consultée par les collaborateurs et "
@@ -780,7 +958,7 @@ def build():
     ))
     story.append(P("Table 2.3 — Principaux concepts métier (vocabulaire corrigé)", "Caption"))
 
-    story.append(P("2.7 Architecture du module d'intelligence artificielle", "HSection"))
+    story.append(P("2.8 Architecture du module d'intelligence artificielle", "HSection"))
     story.append(P(
         "Le module d'intelligence artificielle est basé sur une approche RAG (Retrieval Augmented "
         "Generation). Cette approche permet au modèle de langage de générer des réponses à partir "
@@ -802,7 +980,7 @@ def build():
         "Les réponses doivent être produites uniquement à partir des ressources disponibles dans la plateforme."
     ))
 
-    story.append(P("2.8 Indexation des ressources de connaissance", "HSection"))
+    story.append(P("2.9 Indexation des ressources de connaissance", "HSection"))
     story.append(P(
         "Lorsqu'un administrateur ou un manager ajoute une ressource, celle-ci est enregistrée dans "
         "la base de données relationnelle. Si la ressource est exploitable par l'assistant intelligent, "
@@ -824,7 +1002,7 @@ def build():
         "supprimés de la base vectorielle afin d'empêcher l'assistant d'utiliser des informations obsolètes."
     ))
 
-    story.append(P("2.9 Diagramme de cas d'utilisation", "HSection"))
+    story.append(P("2.10 Diagrammes de cas d'utilisation", "HSection"))
     story.append(P(
         "Le diagramme de cas d'utilisation permet de représenter les principales interactions entre "
         "les acteurs du système et les fonctionnalités offertes par la plateforme."
@@ -835,11 +1013,31 @@ def build():
         "ses propres responsabilités. Le Manager hérite ainsi des cas d'utilisation de l'Employé, "
         "et l'Administrateur hérite de ceux du Manager."
     ))
-    story.append(fig(DIAG / "figure_2_4_cas_utilisation.png",
-                     "Figure 2.4 — Diagramme de cas d'utilisation (avec généralisation des acteurs)",
-                     width=16 * cm))
+    story.append(P(
+        "Pour améliorer la lisibilité, la modélisation est présentée en deux vues complémentaires : "
+        "une vue générale (macro-fonctions) puis une vue détaillée (cas opérationnels principaux)."
+    ))
+    fig_24a = fig(
+        DIAG / "figure_2_4a_cas_utilisation_general.png",
+        "Figure 2.4a — Diagramme de cas d'utilisation (vue générale)",
+        width=16 * cm
+    )
+    if isinstance(fig_24a, list):
+        story.extend(fig_24a)
+    else:
+        story.append(fig_24a)
 
-    story.append(P("2.10 Description textuelle des cas d'utilisation principaux", "HSection"))
+    fig_24b = fig(
+        DIAG / "figure_2_4b_cas_utilisation_detail.png",
+        "Figure 2.4b — Diagramme de cas d'utilisation (vue détaillée)",
+        width=16 * cm
+    )
+    if isinstance(fig_24b, list):
+        story.extend(fig_24b)
+    else:
+        story.append(fig_24b)
+
+    story.append(P("2.11 Description textuelle des cas d'utilisation principaux", "HSection"))
     story.append(P(
         "Afin de préciser le comportement attendu du système, les deux cas d'utilisation les plus "
         "significatifs sont détaillés ci-dessous sous forme de fiches descriptives."
@@ -879,7 +1077,7 @@ def build():
     ))
     story.append(P("Table 2.5 — Fiche descriptive — Ajouter une ressource de connaissance", "Caption"))
 
-    story.append(P("2.11 Diagramme de classes", "HSection"))
+    story.append(P("2.12 Diagramme de classes", "HSection"))
     story.append(P(
         "Le diagramme de classes traduit les concepts métier en un modèle de données conceptuel. "
         "Il servira de base à la conception du schéma relationnel MySQL lors du développement."
@@ -900,7 +1098,7 @@ def build():
         "remplace l'ancien libellé flou « Source IA »."
     ))
 
-    story.append(P("2.12 Diagramme de séquence — Poser une question à l'assistant", "HSection"))
+    story.append(P("2.13 Diagramme de séquence — Poser une question à l'assistant", "HSection"))
     story.append(P(
         "Le diagramme de séquence ci-dessous détaille les interactions entre les composants lors "
         "du cas d'utilisation « Poser une question à l'assistant intelligent »."
@@ -909,7 +1107,7 @@ def build():
                      "Figure 2.6 — Diagramme de séquence — Poser une question à l'assistant intelligent",
                      width=16 * cm))
 
-    story.append(P("2.13 Diagramme de séquence — Ajouter une ressource de connaissance", "HSection"))
+    story.append(P("2.14 Diagramme de séquence — Ajouter une ressource de connaissance", "HSection"))
     story.append(P(
         "Le second diagramme de séquence décrit le scénario d'ajout d'une ressource, incluant "
         "la persistance MySQL, le stockage du fichier et le pipeline d'indexation vers ChromaDB."

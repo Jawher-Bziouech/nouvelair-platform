@@ -8,6 +8,9 @@ backend/**/__pycache__/
 # Uploaded knowledge files
 backend/uploads/
 
+# Local RAG vector index
+backend/vector_store/
+
 # Environment secrets
 .env
 backend/.env
