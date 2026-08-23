@@ -33,7 +33,8 @@ GEMINI_API_KEY = (
     os.getenv("GEMINI_API_KEY", "").strip()
     or os.getenv("GOOGLE_API_KEY", "").strip()
 )
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-flash-latest").strip()
+# Prefer a stable free-tier model; flash-latest often returns 503 under load.
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-flash-lite-latest").strip()
 
 # Free alternative: Groq — https://console.groq.com/keys
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "").strip()

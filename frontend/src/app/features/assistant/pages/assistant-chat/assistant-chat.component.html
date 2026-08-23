@@ -33,7 +33,7 @@
         <header>
           <strong>{{ m.role === 'user' ? 'Vous' : 'Assistant' }}</strong>
         </header>
-        <div class="body">{{ m.texte }}</div>
+        <div class="body" [innerHTML]="formatMessage(m.texte)"></div>
 
         <div class="citations" *ngIf="m.citations?.length">
           <p class="cit-title">Sources</p>
@@ -42,9 +42,11 @@
             class="citation"
             [routerLink]="['/home', c.ressource_id]"
           >
-            <strong>{{ citationTitle(c) }}</strong>
-            <span *ngIf="c.score_pertinence != null">score {{ c.score_pertinence }}</span>
-            <p>{{ c.extrait }}</p>
+            <div class="cit-head">
+              <strong>{{ citationTitle(c) }}</strong>
+              <span *ngIf="c.score_pertinence != null">{{ scoreLabel(c.score_pertinence) }}</span>
+            </div>
+            <div class="cit-excerpt" [innerHTML]="formatMessage(c.extrait)"></div>
           </a>
         </div>
       </article>

@@ -11,6 +11,7 @@ from app.api.routes.role import router as role_router
 from app.api.routes.user import router as user_router
 from app.database import Base, engine
 from app.models import assistant, categorie, ressource, role, user  # noqa: F401
+from app.services.rag import llm_mode
 
 Base.metadata.create_all(bind=engine)
 
@@ -65,4 +66,4 @@ app.include_router(assistant_router)
 def health():
     with engine.connect() as conn:
         conn.execute(text("SELECT 1"))
-    return {"status": "ok", "db": "connected"}
+    return {"status": "ok", "db": "connected", "llm_mode": llm_mode()}

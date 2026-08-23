@@ -19,6 +19,7 @@ import json
 import math
 import re
 import threading
+import unicodedata
 from collections import Counter
 from pathlib import Path
 
@@ -31,7 +32,65 @@ from app.services.text_extract import extract_ressource_text
 STORE_PATH = VECTOR_DIR / "chunks.json"
 EMBED_DIM = 384
 
+_STOP_WORDS = frozenset(
+    {
+        "le",
+        "la",
+        "les",
+        "de",
+        "du",
+        "des",
+        "un",
+        "une",
+        "et",
+        "ou",
+        "en",
+        "pour",
+        "par",
+        "sur",
+        "dans",
+        "que",
+        "qui",
+        "quoi",
+        "est",
+        "ce",
+        "se",
+        "ne",
+        "pas",
+        "plus",
+        "avec",
+        "sans",
+        "the",
+        "a",
+        "an",
+    }
+)
+
 _lock = threading.Lock()
+
+
+def _fold_accents(text: str) -> str:
+    normalized = unicodedata.normalize("NFD", text)
+    return "".join(c for c in normalized if unicodedata.category(c) != "Mn")
+
+
+def _tokenize(text: str) -> list[str]:
+    folded = _fold_accents(text.lower())
+    return re.findall(r"[a-z0-9]+", folded)
+
+
+def _tokens_match(query_tok: str, doc_tok: str) -> bool:
+    if query_tok == doc_tok:
+        return True
+    if len(query_tok) >= 3 and len(doc_tok) >= 3:
+        shorter, longer = (
+            (query_tok, doc_tok) if len(query_tok) <= len(doc_tok) else (doc_tok, query_tok)
+        )
+        if longer.startswith(shorter):
+            return True
+        if len(query_tok) >= 4 and len(doc_tok) >= 4 and query_tok[:4] == doc_tok[:4]:
+            return True
+    return False
 
 
 def _ensure_store() -> list[dict]:
@@ -48,10 +107,6 @@ def _ensure_store() -> list[dict]:
 def _save_store(rows: list[dict]) -> None:
     VECTOR_DIR.mkdir(parents=True, exist_ok=True)
     STORE_PATH.write_text(json.dumps(rows, ensure_ascii=False), encoding="utf-8")
-
-
-def _tokenize(text: str) -> list[str]:
-    return re.findall(r"[a-zA-Zàâäéèêëïîôùûüç0-9]+", text.lower())
 
 
 def _stable_bucket(tok: str, dim: int) -> int:
@@ -106,20 +161,29 @@ def delete_ressource_vectors(ressource_id: int) -> None:
 
 
 def _keyword_overlap(question: str, document: str, titre: str = "") -> float:
-    """Share of query tokens found in titre+document (helps names / typos resistance)."""
-    q_tokens = [t for t in _tokenize(question) if len(t) > 2]
+    """Share of meaningful query tokens found in titre+document (typos / accents tolerant)."""
+    q_tokens = [t for t in _tokenize(question) if len(t) > 2 and t not in _STOP_WORDS]
+    if not q_tokens:
+        q_tokens = [t for t in _tokenize(question) if len(t) > 2]
     if not q_tokens:
         return 0.0
-    hay = f"{titre} {document}".lower()
-    hits = 0
-    for tok in q_tokens:
-        if tok in hay:
-            hits += 1
+
+    doc_tokens = _tokenize(f"{titre} {document}")
+    hits = 0.0
+    for q_tok in q_tokens:
+        if any(_tokens_match(q_tok, d_tok) for d_tok in doc_tokens):
+            hits += 1.0
             continue
-        # soft match: prefix for typos like reciept/receipt
-        if len(tok) >= 5 and any(tok[:4] in w for w in _tokenize(hay) if len(w) >= 4):
-            hits += 0.6
+        hay = _fold_accents(f"{titre} {document}".lower())
+        if q_tok in hay:
+            hits += 1.0
     return hits / len(q_tokens)
+
+
+def extract_search_terms(question: str) -> str:
+    """Keywords only — helps natural-language / typo-heavy questions."""
+    tokens = [t for t in _tokenize(question) if len(t) > 2 and t not in _STOP_WORDS]
+    return " ".join(tokens)
 
 
 def index_ressource(db: Session, ressource: RessourceDeConnaissance) -> bool:
@@ -184,13 +248,14 @@ def query_relevant_chunks(question: str, top_k: int = RAG_TOP_K) -> list[dict]:
         if len(emb) != len(q_vec):
             continue
         cosine = _cosine(q_vec, emb)
-        overlap = _keyword_overlap(
-            question,
-            row.get("document") or "",
-            row.get("titre") or "",
-        )
-        # Hybrid: embeddings + explicit keyword hits (names, titles)
-        score = 0.55 * cosine + 0.45 * overlap
+        titre = row.get("titre") or ""
+        doc = row.get("document") or ""
+        overlap = _keyword_overlap(question, doc, titre)
+        title_overlap = _keyword_overlap(question, "", titre)
+        # Hybrid: embeddings + keywords; boost strong title hits (e.g. "départ vol")
+        score = 0.5 * cosine + 0.35 * overlap + 0.15 * title_overlap
+        if title_overlap >= 0.34:
+            score += 0.12 * title_overlap
         scored.append((score, row))
 
     scored.sort(key=lambda x: x[0], reverse=True)

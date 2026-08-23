@@ -2,7 +2,7 @@
   <header class="page-head">
     <div>
       <h1>Tableau de bord</h1>
-      <p>Pilotage du back-office : utilisateurs, contenu et structure.</p>
+      <p>Indicateurs clés, répartition du contenu et activité récente.</p>
     </div>
   </header>
 
@@ -31,11 +31,106 @@
         <p>Ressources</p>
         <span>Voir le site →</span>
       </a>
-      <a routerLink="/home/assistant" class="stat">
-        <h2>{{ s.ressources_indexees }}</h2>
-        <p>Indexées (RAG)</p>
-        <span>Tester l’assistant →</span>
-      </a>
+      <div class="stat highlight">
+        <h2>{{ indexedPct }}%</h2>
+        <p>Taux d’indexation RAG</p>
+        <span>{{ s.ressources_indexees }} / {{ s.ressources }} indexées</span>
+      </div>
+    </div>
+
+    <div class="charts">
+      <section class="chart-card">
+        <header>
+          <h2>Indexation RAG</h2>
+          <small>Documents prêts pour l’assistant</small>
+        </header>
+        <div class="donut-wrap">
+          <div class="donut" [style.background]="indexRing">
+            <div class="donut-hole">
+              <strong>{{ indexedPct }}%</strong>
+              <span>indexé</span>
+            </div>
+          </div>
+          <ul class="legend">
+            <li>
+              <i style="background:#0f7a62"></i>
+              Indexées — {{ s.ressources_indexees }}
+            </li>
+            <li>
+              <i style="background:#e8ecf1"></i>
+              Non indexées — {{ s.ressources - s.ressources_indexees }}
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="chart-card">
+        <header>
+          <h2>Utilisateurs par rôle</h2>
+          <small>Répartition des comptes</small>
+        </header>
+        <div class="bars" *ngIf="byRole.length; else emptyRole">
+          <div class="bar-row" *ngFor="let item of byRole">
+            <div class="bar-label">
+              <span>{{ item.label }}</span>
+              <strong>{{ item.value }}</strong>
+            </div>
+            <div class="bar-track">
+              <div
+                class="bar-fill"
+                [style.width.%]="(item.value / maxBar(byRole)) * 100"
+                [style.background]="item.color"
+              ></div>
+            </div>
+          </div>
+        </div>
+        <ng-template #emptyRole><p class="empty">Aucune donnée.</p></ng-template>
+      </section>
+
+      <section class="chart-card">
+        <header>
+          <h2>Ressources par type</h2>
+          <small>Types de publications</small>
+        </header>
+        <div class="donut-wrap" *ngIf="byType.length; else emptyType">
+          <div class="donut" [style.background]="donutGradient(byType)">
+            <div class="donut-hole">
+              <strong>{{ s.ressources }}</strong>
+              <span>total</span>
+            </div>
+          </div>
+          <ul class="legend">
+            <li *ngFor="let item of byType">
+              <i [style.background]="item.color"></i>
+              {{ item.label }} — {{ item.value }} ({{ item.pct }}%)
+            </li>
+          </ul>
+        </div>
+        <ng-template #emptyType><p class="empty">Aucune ressource.</p></ng-template>
+      </section>
+
+      <section class="chart-card">
+        <header>
+          <h2>Ressources par catégorie</h2>
+          <small>Remplissage des dossiers</small>
+        </header>
+        <div class="bars" *ngIf="byCategory.length; else emptyCatChart">
+          <div class="bar-row" *ngFor="let item of byCategory">
+            <div class="bar-label">
+              <span>{{ item.label }}</span>
+              <strong>{{ item.value }} · {{ item.pct }}%</strong>
+            </div>
+            <div class="bar-track">
+              <div
+                class="bar-fill"
+                [style.width.%]="(item.value / maxBar(byCategory)) * 100"
+                [style.background]="item.color"
+              ></div>
+            </div>
+          </div>
+        </div>
+        <ng-template #emptyCatChart><p class="empty">Aucune donnée.</p></ng-template>
+      </section>
     </div>
 
     <div class="actions">

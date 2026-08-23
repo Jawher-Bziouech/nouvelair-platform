@@ -105,8 +105,30 @@
 }
 
 .bubble .body {
-  white-space: pre-wrap;
-  line-height: 1.45;
+  line-height: 1.55;
+  color: #1a2433;
+}
+
+.bubble .body p {
+  margin: 0 0 0.55rem;
+}
+
+.bubble .body p:last-child {
+  margin-bottom: 0;
+}
+
+.bubble .body ol,
+.bubble .body ul {
+  margin: 0.35rem 0 0.65rem;
+  padding-left: 1.25rem;
+}
+
+.bubble .body li {
+  margin: 0.2rem 0;
+}
+
+.bubble .body strong {
+  color: #0b2a4a;
 }
 
 .citations {
@@ -138,24 +160,37 @@
   border-color: #0b5cad;
 }
 
-.citation strong {
+.cit-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.45rem;
+  margin-bottom: 0.35rem;
+}
+
+.cit-head strong {
   color: #0b2a4a;
 }
 
-.citation span {
-  margin-left: 0.45rem;
+.cit-head span {
   font-size: 0.75rem;
   color: #7a8a9a;
 }
 
-.citation p {
-  margin: 0.35rem 0 0;
+.cit-excerpt {
   font-size: 0.88rem;
   color: #445566;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  line-height: 1.45;
+}
+
+.cit-excerpt p {
+  margin: 0 0 0.35rem;
+}
+
+.cit-excerpt ol,
+.cit-excerpt ul {
+  margin: 0.25rem 0;
+  padding-left: 1.1rem;
 }
 
 .thinking {

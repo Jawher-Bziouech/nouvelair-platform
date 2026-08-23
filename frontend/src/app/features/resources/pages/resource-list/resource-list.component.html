@@ -2,65 +2,156 @@
   <header class="page-head">
     <div>
       <p class="eyebrow">Front-office</p>
-      <h1>Accueil</h1>
-      <p>Consultez les documents et publications internes.</p>
+      <h1>Bibliothèque</h1>
     </div>
     <a *ngIf="canManage" routerLink="/home/upload" class="btn-primary">Publier une ressource</a>
   </header>
 
-  <div class="filters card">
-    <input [(ngModel)]="q" placeholder="Rechercher un titre..." />
-    <select [(ngModel)]="categorieId">
-      <option value="">Toutes catégories</option>
-      <option *ngFor="let c of categories" [ngValue]="c.id">{{ c.nom }}</option>
-    </select>
-    <select [(ngModel)]="type">
-      <option value="">Tous types</option>
-      <option value="document">document</option>
-      <option value="procedure">procedure</option>
-      <option value="note">note</option>
-      <option value="guide">guide</option>
-      <option value="publication_interne">publication_interne</option>
-      <option value="blog">blog</option>
-    </select>
-    <button type="button" class="btn-secondary" (click)="load()">Filtrer</button>
-  </div>
+  <div class="explorer">
+    <!-- Left: folder tree -->
+    <aside class="tree">
+      <p class="tree-label">Dossiers</p>
+      <button
+        type="button"
+        class="tree-item"
+        [class.active]="currentFolderId === null && !q && !type"
+        (click)="openFolder(null)"
+      >
+        <svg class="win-ico" viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="#FFB02E" d="M3 7.5A2.5 2.5 0 0 1 5.5 5H9l1.2 1.5H18.5A2.5 2.5 0 0 1 21 9v8.5a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5v-10Z"/>
+          <path fill="#F5A524" d="M3 10h18v7.5a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5V10Z"/>
+        </svg>
+        <span class="name">Bibliothèque</span>
+        <span class="count">{{ allRessources.length }}</span>
+      </button>
+      <button
+        type="button"
+        class="tree-item child"
+        *ngFor="let c of categories"
+        [class.active]="currentFolderId === c.id && !q && !type"
+        (click)="openFolder(c.id)"
+      >
+        <svg class="win-ico" viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="#FFB02E" d="M3 7.5A2.5 2.5 0 0 1 5.5 5H9l1.2 1.5H18.5A2.5 2.5 0 0 1 21 9v8.5a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5v-10Z"/>
+          <path fill="#F5A524" d="M3 10h18v7.5a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5V10Z"/>
+        </svg>
+        <span class="name">{{ c.nom }}</span>
+        <span class="count">{{ countInFolder(c.id) }}</span>
+      </button>
+    </aside>
 
-  <p class="error" *ngIf="error">{{ error }}</p>
-  <p *ngIf="loading">Chargement...</p>
+    <!-- Right: contents -->
+    <div class="pane">
+      <nav class="breadcrumb" aria-label="Chemin">
+        <button type="button" class="crumb" (click)="openFolder(null)">Bibliothèque</button>
+        <span *ngIf="currentFolder" class="sep">›</span>
+        <span *ngIf="currentFolder" class="crumb current">{{ currentFolder.nom }}</span>
+        <span *ngIf="q || type" class="sep">›</span>
+        <span *ngIf="q || type" class="crumb current">Recherche</span>
+      </nav>
 
-  <div class="cards" *ngIf="!loading">
-    <article class="resource-card" *ngFor="let item of ressources">
-      <div class="badge">{{ item.type }}</div>
-      <h2>{{ item.titre }}</h2>
-      <p class="meta">
-        {{ item.categorie?.nom || 'Sans catégorie' }}
-        <span *ngIf="item.type_fichier"> · {{ item.type_fichier }}</span>
-      </p>
-      <p class="author">
-        Publié par
-        <strong *ngIf="item.auteur as a; else unknownAuthor">
-          {{ a.prenom }} {{ a.nom }}
-        </strong>
-        <ng-template #unknownAuthor><strong>Utilisateur inconnu</strong></ng-template>
-        <span *ngIf="item.date_ajout"> · {{ item.date_ajout | date: 'mediumDate' }}</span>
-      </p>
-      <div class="actions">
-        <a [routerLink]="['/home', item.id]">Ouvrir</a>
-        <button type="button" (click)="download(item)" [disabled]="!item.chemin_fichier">
-          Télécharger
-        </button>
+      <div class="toolbar">
+        <input
+          [(ngModel)]="q"
+          placeholder="Rechercher un fichier…"
+          (keyup.enter)="search()"
+        />
+        <select [(ngModel)]="type" (ngModelChange)="search()">
+          <option value="">Tous types</option>
+          <option value="document">document</option>
+          <option value="procedure">procedure</option>
+          <option value="note">note</option>
+          <option value="guide">guide</option>
+          <option value="publication_interne">publication_interne</option>
+          <option value="blog">blog</option>
+        </select>
+        <button type="button" class="btn-secondary" (click)="search()">Rechercher</button>
         <button
-          *ngIf="canManage"
+          *ngIf="q || type"
           type="button"
-          class="danger"
-          (click)="remove(item)"
+          class="btn-secondary"
+          (click)="clearSearch()"
         >
-          Supprimer
+          Effacer
         </button>
       </div>
-    </article>
-  </div>
 
-  <p class="empty" *ngIf="!loading && ressources.length === 0">Aucune ressource trouvée.</p>
+      <p class="error" *ngIf="error">{{ error }}</p>
+      <p *ngIf="loading">Chargement...</p>
+
+      <div class="pane-head" *ngIf="!loading">
+        <h2>{{ folderTitle }}</h2>
+        <span class="hint" *ngIf="isRoot">{{ categories.length }} dossier(s)</span>
+        <span class="hint" *ngIf="!isRoot">{{ ressources.length }} fichier(s)</span>
+      </div>
+
+      <!-- Root: category folders -->
+      <div class="list" *ngIf="!loading && isRoot">
+        <button
+          type="button"
+          class="row folder-row"
+          *ngFor="let c of categories"
+          (dblclick)="openFolder(c.id)"
+          (click)="openFolder(c.id)"
+        >
+          <svg class="win-ico lg" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="#FFB02E" d="M3 7.5A2.5 2.5 0 0 1 5.5 5H9l1.2 1.5H18.5A2.5 2.5 0 0 1 21 9v8.5a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5v-10Z"/>
+            <path fill="#F5A524" d="M3 10h18v7.5a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5V10Z"/>
+          </svg>
+          <span class="main">
+            <span class="title">{{ c.nom }}</span>
+            <span class="sub">{{ c.description || 'Dossier de catégorie' }}</span>
+          </span>
+          <span class="meta">{{ countInFolder(c.id) }} élément(s)</span>
+        </button>
+        <p class="empty" *ngIf="categories.length === 0">Aucun dossier (catégorie) pour le moment.</p>
+      </div>
+
+      <!-- Folder / search: files -->
+      <div class="list" *ngIf="!loading && !isRoot">
+        <div class="row file-row" *ngFor="let item of ressources">
+          <a class="row-link" [routerLink]="['/home', item.id]">
+            <svg class="win-ico lg" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="#E8EEF5" d="M6 2h8l6 6v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Z"/>
+              <path fill="#C5D0DE" d="M14 2v6h6"/>
+              <path fill="#0B5CAD" d="M7 13h10v1.5H7zm0 3.5h7V18H7z"/>
+            </svg>
+            <span class="main">
+              <span class="title">{{ item.titre }}</span>
+              <span class="sub">
+                {{ item.type }}
+                <ng-container *ngIf="item.type_fichier"> · {{ item.type_fichier }}</ng-container>
+                <ng-container *ngIf="item.categorie?.nom && (q || type)">
+                  · {{ item.categorie?.nom }}
+                </ng-container>
+              </span>
+            </span>
+            <span class="meta">
+              <ng-container *ngIf="item.auteur as a; else unknownAuthor">
+                {{ a.prenom }} {{ a.nom }}
+              </ng-container>
+              <ng-template #unknownAuthor>Inconnu</ng-template>
+              <ng-container *ngIf="item.date_ajout">
+                · {{ item.date_ajout | date: 'mediumDate' }}
+              </ng-container>
+            </span>
+          </a>
+          <div class="row-actions">
+            <button type="button" (click)="download(item)" [disabled]="!item.chemin_fichier">
+              Télécharger
+            </button>
+            <button
+              *ngIf="canManage"
+              type="button"
+              class="danger"
+              (click)="remove(item)"
+            >
+              Supprimer
+            </button>
+          </div>
+        </div>
+        <p class="empty" *ngIf="ressources.length === 0">Ce dossier est vide.</p>
+      </div>
+    </div>
+  </div>
 </section>

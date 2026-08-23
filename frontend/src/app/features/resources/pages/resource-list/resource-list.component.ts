@@ -15,11 +15,15 @@ export class ResourceListComponent implements OnInit {
   private readonly categorieService = inject(CategorieService);
   private readonly auth = inject(AuthService);
 
+  /** All resources (for folder counts + root search). */
+  allRessources: Ressource[] = [];
+  /** Resources shown in the current folder / search. */
   ressources: Ressource[] = [];
   categories: Categorie[] = [];
   q = '';
-  categorieId: number | '' = '';
   type = '';
+  /** null = root (folders view); number = open category folder. */
+  currentFolderId: number | null = null;
   error = '';
   loading = false;
 
@@ -34,25 +38,76 @@ export class ResourceListComponent implements OnInit {
     return this.auth.hasRole('Administrateur', 'Manager');
   }
 
+  get isRoot(): boolean {
+    return this.currentFolderId === null && !this.q.trim() && !this.type;
+  }
+
+  get currentFolder(): Categorie | null {
+    if (this.currentFolderId === null) {
+      return null;
+    }
+    return this.categories.find((c) => c.id === this.currentFolderId) ?? null;
+  }
+
+  get folderTitle(): string {
+    if (this.q.trim() || this.type) {
+      return 'Résultats de recherche';
+    }
+    return this.currentFolder?.nom ?? 'Bibliothèque';
+  }
+
+  countInFolder(categorieId: number): number {
+    return this.allRessources.filter((r) => r.categorie_id === categorieId).length;
+  }
+
+  openFolder(categorieId: number | null): void {
+    this.currentFolderId = categorieId;
+    this.q = '';
+    this.type = '';
+    this.applyView();
+  }
+
   load(): void {
     this.loading = true;
     this.error = '';
-    this.ressourceService
-      .list({
-        q: this.q || undefined,
-        type: this.type || undefined,
-        categorie_id: this.categorieId === '' ? undefined : Number(this.categorieId),
-      })
-      .subscribe({
-        next: (items: Ressource[]) => {
-          this.ressources = items;
-          this.loading = false;
-        },
-        error: () => {
-          this.error = 'Impossible de charger les ressources.';
-          this.loading = false;
-        },
-      });
+    this.ressourceService.list({}).subscribe({
+      next: (items: Ressource[]) => {
+        this.allRessources = items;
+        this.applyView();
+        this.loading = false;
+      },
+      error: () => {
+        this.error = 'Impossible de charger les ressources.';
+        this.loading = false;
+      },
+    });
+  }
+
+  search(): void {
+    this.applyView();
+  }
+
+  clearSearch(): void {
+    this.q = '';
+    this.type = '';
+    this.applyView();
+  }
+
+  private applyView(): void {
+    let items = [...this.allRessources];
+    const query = this.q.trim().toLowerCase();
+
+    if (query) {
+      items = items.filter((r) => r.titre.toLowerCase().includes(query));
+    }
+    if (this.type) {
+      items = items.filter((r) => r.type === this.type);
+    }
+    if (!query && !this.type && this.currentFolderId !== null) {
+      items = items.filter((r) => r.categorie_id === this.currentFolderId);
+    }
+
+    this.ressources = items;
   }
 
   download(item: Ressource): void {

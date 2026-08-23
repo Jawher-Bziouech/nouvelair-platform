@@ -13,7 +13,7 @@ from app.schemas.assistant import (
     QuestionResponse,
     SessionRead,
 )
-from app.services.rag import answer_question, llm_mode
+from app.services.rag import answer_question
 
 router = APIRouter(prefix="/assistant", tags=["assistant"])
 
@@ -109,7 +109,7 @@ def ask_question(
         db, session_id=session.id, texte=question, role="user"
     )
 
-    answer_text, passages = answer_question(question)
+    answer_text, passages, generation = answer_question(question)
 
     # Keep only citations that still exist in MySQL (avoids stale vector-store IDs)
     if passages:
@@ -132,11 +132,10 @@ def ask_question(
     assistant_crud.touch_session(db, session)
 
     titres = {p["ressource_id"]: p.get("titre") or "" for p in passages}
-    mode = llm_mode()
 
     return QuestionResponse(
         session_id=session.id,
         question=_message_read(user_msg),
         answer=_message_read(assistant_msg, titres),
-        mode=mode,
+        mode=generation,
     )

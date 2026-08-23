@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Maquette — Nouvelair Knowledge Platform</title>
+  <style>
+    :root {
+      --blue: #0054a5;
+      --blue-dark: #003d7a;
+      --ink: #1a1a1a;
+      --muted: #5c5c5c;
+      --line: #e5e5e5;
+      --bg: #f5f5f5;
+      --ok: #1b7a4e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      font-size: 15px;
+      line-height: 1.45;
+    }
+    a { color: inherit; }
+    .sr {
+      position: absolute;
+      width: 1px; height: 1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+    }
+
+    /* Role switch (maquette only) */
+    .maq {
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+      padding: 8px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .roles { display: flex; gap: 6px; }
+    .roles label {
+      border: 1px solid var(--line);
+      padding: 5px 12px;
+      cursor: pointer;
+      background: #fff;
+    }
+    html:has(#role-employe:checked) label[for="role-employe"],
+    html:has(#role-manager:checked) label[for="role-manager"],
+    html:has(#role-admin:checked) label[for="role-admin"] {
+      background: var(--ink);
+      color: #fff;
+      border-color: var(--ink);
+    }
+    html:has(#role-employe:checked) .nav-manager { display: none !important; }
+    html:not(:has(#role-admin:checked)) .nav-admin { display: none !important; }
+    .who-alt { display: none; }
+    html:has(#role-employe:checked) .show-e { display: inline; }
+    html:has(#role-manager:checked) .show-m { display: inline; }
+    html:has(#role-admin:checked) .show-a { display: inline; }
+
+    /* Official-style header */
+    .site-header {
+      display: none;
+      background: #fff;
+      border-bottom: 3px solid var(--blue);
+      padding: 0 24px;
+      align-items: center;
+      min-height: 80px;
+      gap: 24px;
+      overflow: hidden;
+    }
+    html:has(.app:target) .site-header { display: flex; }
+    .logo {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+    .logo img {
+      display: block;
+      height: 44px;
+      width: auto;
+      max-width: 260px;
+    }
+    .login-box .logo {
+      display: block;
+      margin-bottom: 20px;
+      max-width: 100%;
+    }
+    .login-box .logo img {
+      height: auto;
+      width: 100%;
+      max-width: 280px;
+      max-height: 48px;
+      object-fit: contain;
+      object-position: left center;
+    }
+    .menu {
+      display: flex;
+      gap: 4px;
+      flex: 1;
+      flex-wrap: wrap;
+    }
+    .menu a {
+      text-decoration: none;
+      padding: 22px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #222;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -3px;
+    }
+    .menu a:hover { color: var(--blue); }
+    html:has(#page-home:target) .menu a[href="#page-home"],
+    html:has(#page-detail:target) .menu a[href="#page-home"],
+    html:has(#page-publish:target) .menu a[href="#page-publish"],
+    html:has(#page-assistant:target) .menu a[href="#page-assistant"],
+    html:has(#page-admin:target) .menu a[href="#page-admin"],
+    html:has(#page-users:target) .menu a[href="#page-admin"],
+    html:has(#page-roles:target) .menu a[href="#page-admin"],
+    html:has(#page-categories:target) .menu a[href="#page-admin"] {
+      color: var(--blue);
+      border-bottom-color: var(--blue);
+    }
+    .account {
+      margin-left: auto;
+      font-size: 13px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .account a { color: var(--blue); text-decoration: none; font-weight: 700; }
+
+    /* Pages */
+    .page { display: none; max-width: 1100px; margin: 0 auto; padding: 28px 24px 64px; }
+    .page:target { display: block; }
+    #page-login { display: block; max-width: none; padding: 0; }
+    #page-login:target { display: block; }
+    html:has(.app:target) #page-login { display: none !important; }
+
+    .crumb { color: var(--muted); font-size: 13px; margin: 0 0 18px; }
+    .crumb a { color: var(--muted); text-decoration: none; }
+    .crumb a:hover { color: var(--blue); }
+    h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px; }
+    .lede { color: var(--muted); margin: 0 0 24px; }
+
+    .btn {
+      display: inline-block;
+      background: var(--blue);
+      color: #fff !important;
+      text-decoration: none;
+      border: none;
+      padding: 12px 22px;
+      font: 700 13px/1 Arial, Helvetica, sans-serif;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    .btn:hover { background: var(--blue-dark); }
+    .btn-out {
+      background: #fff;
+      color: var(--ink) !important;
+      border: 1px solid var(--line);
+    }
+    .btn-out:hover { border-color: #bbb; background: #fafafa; }
+    .row-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    /* Login like booking panel */
+    .login {
+      min-height: 70vh;
+      display: grid;
+      place-items: center;
+      padding: 48px 16px;
+      background: #fff;
+    }
+    .login-box {
+      width: 100%;
+      max-width: 420px;
+      border: 1px solid var(--line);
+      padding: 32px;
+      background: #fff;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+    .login-box h1 { font-size: 22px; }
+    .field { margin-bottom: 16px; }
+    .field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 6px;
+      color: #333;
+    }
+    .field input, .field select, .field textarea {
+      width: 100%;
+      border: 1px solid #ccc;
+      padding: 10px 12px;
+      font: 15px Arial, Helvetica, sans-serif;
+      background: #fff;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      outline: 2px solid var(--blue);
+      border-color: var(--blue);
+    }
+    .field textarea { min-height: 90px; resize: vertical; }
+    .btn-block { width: 100%; text-align: center; }
+
+    /* Lists / tables */
+    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+    .toolbar input[type="search"] {
+      flex: 1;
+      min-width: 200px;
+      border: 1px solid #ccc;
+      padding: 10px 12px;
+      font: 15px Arial, Helvetica, sans-serif;
+    }
+    .filters { display: flex; gap: 0; border: 1px solid var(--line); }
+    .filters label {
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 13px;
+      border-right: 1px solid var(--line);
+      background: #fff;
+    }
+    .filters label:last-of-type { border-right: 0; }
+    html:has(#cat-all:checked) label[for="cat-all"],
+    html:has(#cat-ops:checked) label[for="cat-ops"],
+    html:has(#cat-rh:checked) label[for="cat-rh"],
+    html:has(#cat-sec:checked) label[for="cat-sec"],
+    html:has(#cat-com:checked) label[for="cat-com"] {
+      background: var(--blue);
+      color: #fff;
+    }
+
+    table { width: 100%; border-collapse: collapse; background: #fff; }
+    th {
+      text-align: left;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 10px 12px;
+      border-bottom: 2px solid var(--ink);
+      background: #fff;
+    }
+    td {
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: middle;
+    }
+    tr:hover td { background: #fafafa; }
+    .linkish { color: var(--blue); text-decoration: none; font-weight: 700; font-size: 13px; }
+    .head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .map a {
+      display: block;
+      background: #fff;
+      border: 1px solid var(--line);
+      padding: 16px 18px;
+      text-decoration: none;
+      margin-bottom: 8px;
+    }
+    .map a:hover { border-color: var(--blue); }
+    .map strong { display: block; margin-bottom: 4px; }
+    .map span { color: var(--muted); font-size: 13px; }
+
+    .drop {
+      border: 1px dashed #bbb;
+      padding: 28px;
+      text-align: center;
+      background: #fff;
+      color: var(--muted);
+    }
+    .form { max-width: 640px; }
+    .two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 700px) { .two { grid-template-columns: 1fr; } }
+
+    .detail { display: grid; grid-template-columns: 1.4fr 0.8fr; gap: 24px; }
+    @media (max-width: 800px) { .detail { grid-template-columns: 1fr; } }
+    .preview {
+      background: #ececec;
+      min-height: 320px;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      border: 1px solid var(--line);
+    }
+    .meta p { margin: 0 0 10px; }
+    .meta b { display: inline-block; min-width: 110px; font-weight: 700; }
+
+    .chat-wrap { display: grid; grid-template-columns: 1fr 260px; gap: 24px; }
+    @media (max-width: 800px) { .chat-wrap { grid-template-columns: 1fr; } }
+    .chat { background: #fff; border: 1px solid var(--line); min-height: 380px; display: flex; flex-direction: column; }
+    .msgs { flex: 1; padding: 16px; }
+    .msg { margin: 0 0 12px; padding: 10px 12px; background: #f7f7f7; }
+    .msg.me { background: #eef5fb; border-left: 3px solid var(--blue); }
+    .cite { font-size: 12px; color: var(--blue); margin-top: 6px; }
+    .composer { display: flex; border-top: 1px solid var(--line); }
+    .composer input { flex: 1; border: 0; padding: 12px; font: 15px Arial, Helvetica, sans-serif; }
+    .composer .btn { border-radius: 0; }
+    .src a { display: block; padding: 10px 0; border-bottom: 1px solid var(--line); text-decoration: none; }
+    .src a:hover { color: var(--blue); }
+    .src small { display: block; color: var(--muted); }
+
+    .kpis { display: flex; gap: 24px; flex-wrap: wrap; margin: 0 0 24px; padding: 16px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .kpis div { min-width: 100px; }
+    .kpis b { display: block; font-size: 26px; }
+    .kpis span { font-size: 13px; color: var(--muted); }
+
+    footer.site {
+      display: none;
+      background: #1a1a1a;
+      color: #ccc;
+      padding: 28px 24px;
+      font-size: 13px;
+    }
+    html:has(.app:target) footer.site { display: block; }
+    footer.site a { color: #fff; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <input class="sr" type="radio" name="role" id="role-employe" checked />
+  <input class="sr" type="radio" name="role" id="role-manager" />
+  <input class="sr" type="radio" name="role" id="role-admin" />
+
+  <div class="maq">
+    <span>Maquette — Knowledge Platform</span>
+    <div class="roles">
+      <label for="role-employe">Employé</label>
+      <label for="role-manager">Manager</label>
+      <label for="role-admin">Administrateur</label>
+    </div>
+  </div>
+
+  <header class="site-header">
+    <a class="logo" href="#page-home"><img src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22208.5%22%20height%3D%2235.8%22%20viewBox%3D%220%200%20208.5%2035.8%22%3E%3Cstyle%20type%3D%22text/css%22%3E.st0%7Bfill%3A%230054A5%3B%7D%20.st1%7Bfill%3A%23FFCA05%3B%7D%3C/style%3E%3Cpath%20class%3D%22st0%22%20d%3D%22M62.6%208.8c-18.4-3.1-27.6%2018.8-42.5%2020.7-10.8%201.4-18.7-6.4-20.1-12.1-.8%2011%209.2%2018.9%2020.3%2018.4%2018.7-.8%2028.6-23.5%2042.3-27m-14.3-.3c-14-1.9-17.4%208.5-28.7%2012.2-7.3%202.4-12.9.6-17-3.9%201.9%206%209.1%2010.2%2015.4%209.7%2012.5-1%2019.6-14.8%2030.3-18%22/%3E%3Cpath%20class%3D%22st1%22%20d%3D%22M18.5%2018c2.7-.9%204.6-2%206.2-3.1%201.3-.9%205.9-4.1%208.2-5.6-1.9-5.4-7.2-9.3-13.3-9.3-7.8%200-14.2%206.3-14.2%2014.2%200%20.7%200%201.3.1%201.9%203.4%202.4%207.9%203.6%2013%201.9%22/%3E%3Cpath%20class%3D%22st0%22%20d%3D%22M61.2%2016.2h5.3l-.4%202h.1c.7-.7%201.6-1.2%202.7-1.7%201.1-.4%202.3-.7%203.7-.7.9%200%201.6.1%202.3.3.7.2%201.2.5%201.7%201%20.4.4.7%201%20.9%201.6.2.6.2%201.4%200%202.3l-1.9%209.2h-5.4l1.5-7.5c.4-1.8-.4-2.6-2.3-2.6-1%200-1.8.3-2.6.8s-1.2%201.4-1.5%202.5l-1.4%206.8h-5.4l2.7-14zm28.1%203c-1.2%200-2.3.3-3.1%201-.9.6-1.4%201.6-1.7%203-.3%201.3-.1%202.3.5%203%20.6.6%201.5%201%202.7%201%201.2%200%202.3-.3%203.1-1%20.9-.6%201.4-1.6%201.7-3%20.3-1.3.1-2.3-.5-3-.6-.7-1.5-1-2.7-1m-10.6%203.9c.5-2.5%201.7-4.4%203.7-5.6%201.9-1.3%204.5-1.9%207.7-1.9s5.5.6%206.9%201.9c1.4%201.3%201.8%203.1%201.3%205.6-.5%202.5-1.7%204.4-3.7%205.6-1.9%201.3-4.5%201.9-7.7%201.9s-5.5-.6-6.9-1.9c-1.3-1.2-1.8-3.1-1.3-5.6%22/%3E%3Cpath%20class%3D%22st0%22%20d%3D%22M101.6%2016.2h5.4l-1.5%207.2c-.2%201.2-.2%202%20.2%202.5s1%20.7%201.9.7c1%200%201.8-.3%202.6-.8s1.2-1.4%201.5-2.5l1.5-7h5.4l-2.9%2013.9h-5.3l.4-1.8h-.1c-.7.7-1.6%201.2-2.7%201.7-1.1.4-2.3.7-3.7.7-.8%200-1.6-.1-2.3-.3-.7-.2-1.2-.5-1.7-.9-.4-.4-.7-1-.9-1.7-.2-.7-.1-1.6.1-2.6l2.1-9.1zm18.1%200h6.2l1.4%209.1%205.2-9.1h6.2l-9.3%2013.9h-6.2zm31.5%205.4c0-.4-.1-.7-.2-1.1-.1-.3-.3-.7-.6-.9-.3-.3-.6-.5-1.1-.6-.4-.2-1-.2-1.6-.2-1.3%200-2.3.3-3%20.8-.7.6-1.3%201.2-1.6%202h8.1zm4.4%204.4c-.3.6-.7%201.2-1.3%201.7-.5.6-1.2%201.1-2.1%201.5-.8.4-1.8.8-2.9%201.1-1.1.3-2.4.4-3.9.4-3.1%200-5.4-.6-6.8-1.8-1.4-1.2-1.9-3.1-1.3-5.7.3-1.2.7-2.3%201.4-3.2.7-.9%201.5-1.7%202.4-2.3%201-.6%202.1-1.1%203.3-1.4%201.2-.3%202.6-.5%204-.5%201.5%200%202.8.2%203.9.5s2%20.8%202.7%201.5c.7.7%201.2%201.6%201.4%202.6.2%201.1.2%202.3-.1%203.8l-.1.4h-13.6c0%20.4%200%20.9.2%201.2.1.4.3.7.6%201%20.3.3.7.5%201.2.6.5.2%201.1.2%201.8.2.9%200%201.6-.2%202.2-.5.6-.3%201.1-.7%201.5-1.1h5.5zm5-14.7h5.5l-3.9%2018.8h-5.5zm17.7%2012.3c-.2.1-.5.1-.9.2s-.8.1-1.3.2l-3.8.4c-.6.1-1%20.2-1.3.4-.3.2-.5.5-.6%201-.1.5%200%201%20.4%201.3.4.3.9.4%201.7.4%201.6%200%202.9-.3%203.8-.8.9-.5%201.5-1.3%201.7-2.3l.3-.8zm-11.6-3c.3-1%20.8-1.9%201.5-2.5.6-.6%201.4-1.1%202.3-1.4.9-.3%201.8-.5%202.8-.7%201-.1%202.1-.2%203.1-.2%201.2%200%202.4.1%203.5.2s2%20.4%202.7.7c.7.3%201.2.8%201.6%201.4.3.6.4%201.4.2%202.4l-1.5%207c-.1.5-.2%201-.2%201.4%200%20.2%200%20.4.1.5%200%20.2.1.4.2.6h-5.4c-.1-.2-.1-.4-.1-.6v-.6c-.9.8-2%201.2-3.1%201.5-1.1.2-2.4.4-3.8.4-4.5%200-6.5-1.4-5.9-4.3.2-.8.4-1.5.8-2s.9-1%201.4-1.3c.6-.4%201.2-.6%202-.8.8-.2%201.7-.3%202.7-.4l5.5-.4c.7%200%201.2-.1%201.4-.3.2-.2.4-.4.5-.8.1-.5-.1-.9-.6-1.1-.5-.2-1.3-.4-2.5-.4-1%200-1.8.1-2.4.4-.6.3-1%20.7-1.2%201.3h-5.6zm22-9.3h5.4l-.7%203.3h-5.4l.7-3.3zm-1%204.9h5.4l-2.9%2013.9h-5.4l2.9-13.9zm7.9%200h5.4l-.6%202.7h.1c.7-.9%201.7-1.7%202.8-2.2%201.1-.6%202.3-.9%203.5-.9h.9l.9.1-1%205.1c-.3-.1-.8-.2-1.3-.3-.6-.1-1.1-.1-1.6-.1-1.6%200-2.8.4-3.6%201.1-.9.7-1.4%201.7-1.7%203l-1.1%205.4h-5.4l2.7-13.9z%22/%3E%3C/svg%3E" alt="Nouvelair" /></a>
+    <nav class="menu">
+      <a href="#page-home">Accueil</a>
+      <a href="#page-publish" class="nav-manager">Publier</a>
+      <a href="#page-assistant">Assistant</a>
+      <a href="#page-admin" class="nav-admin">Administration</a>
+    </nav>
+    <div class="account">
+      <span class="who-alt show-e">Sara Ben Ali</span>
+      <span class="who-alt show-m">Amine Khelifi</span>
+      <span class="who-alt show-a">Leila Mansouri</span>
+      <a href="#page-login">Déconnexion</a>
+    </div>
+  </header>
+
+  <!-- LOGIN -->
+  <div class="page" id="page-login">
+    <div class="login">
+      <form class="login-box" action="#page-home" method="get">
+        <a class="logo" href="#page-login"><img src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22208.5%22%20height%3D%2235.8%22%20viewBox%3D%220%200%20208.5%2035.8%22%3E%3Cstyle%20type%3D%22text/css%22%3E.st0%7Bfill%3A%230054A5%3B%7D%20.st1%7Bfill%3A%23FFCA05%3B%7D%3C/style%3E%3Cpath%20class%3D%22st0%22%20d%3D%22M62.6%208.8c-18.4-3.1-27.6%2018.8-42.5%2020.7-10.8%201.4-18.7-6.4-20.1-12.1-.8%2011%209.2%2018.9%2020.3%2018.4%2018.7-.8%2028.6-23.5%2042.3-27m-14.3-.3c-14-1.9-17.4%208.5-28.7%2012.2-7.3%202.4-12.9.6-17-3.9%201.9%206%209.1%2010.2%2015.4%209.7%2012.5-1%2019.6-14.8%2030.3-18%22/%3E%3Cpath%20class%3D%22st1%22%20d%3D%22M18.5%2018c2.7-.9%204.6-2%206.2-3.1%201.3-.9%205.9-4.1%208.2-5.6-1.9-5.4-7.2-9.3-13.3-9.3-7.8%200-14.2%206.3-14.2%2014.2%200%20.7%200%201.3.1%201.9%203.4%202.4%207.9%203.6%2013%201.9%22/%3E%3Cpath%20class%3D%22st0%22%20d%3D%22M61.2%2016.2h5.3l-.4%202h.1c.7-.7%201.6-1.2%202.7-1.7%201.1-.4%202.3-.7%203.7-.7.9%200%201.6.1%202.3.3.7.2%201.2.5%201.7%201%20.4.4.7%201%20.9%201.6.2.6.2%201.4%200%202.3l-1.9%209.2h-5.4l1.5-7.5c.4-1.8-.4-2.6-2.3-2.6-1%200-1.8.3-2.6.8s-1.2%201.4-1.5%202.5l-1.4%206.8h-5.4l2.7-14zm28.1%203c-1.2%200-2.3.3-3.1%201-.9.6-1.4%201.6-1.7%203-.3%201.3-.1%202.3.5%203%20.6.6%201.5%201%202.7%201%201.2%200%202.3-.3%203.1-1%20.9-.6%201.4-1.6%201.7-3%20.3-1.3.1-2.3-.5-3-.6-.7-1.5-1-2.7-1m-10.6%203.9c.5-2.5%201.7-4.4%203.7-5.6%201.9-1.3%204.5-1.9%207.7-1.9s5.5.6%206.9%201.9c1.4%201.3%201.8%203.1%201.3%205.6-.5%202.5-1.7%204.4-3.7%205.6-1.9%201.3-4.5%201.9-7.7%201.9s-5.5-.6-6.9-1.9c-1.3-1.2-1.8-3.1-1.3-5.6%22/%3E%3Cpath%20class%3D%22st0%22%20d%3D%22M101.6%2016.2h5.4l-1.5%207.2c-.2%201.2-.2%202%20.2%202.5s1%20.7%201.9.7c1%200%201.8-.3%202.6-.8s1.2-1.4%201.5-2.5l1.5-7h5.4l-2.9%2013.9h-5.3l.4-1.8h-.1c-.7.7-1.6%201.2-2.7%201.7-1.1.4-2.3.7-3.7.7-.8%200-1.6-.1-2.3-.3-.7-.2-1.2-.5-1.7-.9-.4-.4-.7-1-.9-1.7-.2-.7-.1-1.6.1-2.6l2.1-9.1zm18.1%200h6.2l1.4%209.1%205.2-9.1h6.2l-9.3%2013.9h-6.2zm31.5%205.4c0-.4-.1-.7-.2-1.1-.1-.3-.3-.7-.6-.9-.3-.3-.6-.5-1.1-.6-.4-.2-1-.2-1.6-.2-1.3%200-2.3.3-3%20.8-.7.6-1.3%201.2-1.6%202h8.1zm4.4%204.4c-.3.6-.7%201.2-1.3%201.7-.5.6-1.2%201.1-2.1%201.5-.8.4-1.8.8-2.9%201.1-1.1.3-2.4.4-3.9.4-3.1%200-5.4-.6-6.8-1.8-1.4-1.2-1.9-3.1-1.3-5.7.3-1.2.7-2.3%201.4-3.2.7-.9%201.5-1.7%202.4-2.3%201-.6%202.1-1.1%203.3-1.4%201.2-.3%202.6-.5%204-.5%201.5%200%202.8.2%203.9.5s2%20.8%202.7%201.5c.7.7%201.2%201.6%201.4%202.6.2%201.1.2%202.3-.1%203.8l-.1.4h-13.6c0%20.4%200%20.9.2%201.2.1.4.3.7.6%201%20.3.3.7.5%201.2.6.5.2%201.1.2%201.8.2.9%200%201.6-.2%202.2-.5.6-.3%201.1-.7%201.5-1.1h5.5zm5-14.7h5.5l-3.9%2018.8h-5.5zm17.7%2012.3c-.2.1-.5.1-.9.2s-.8.1-1.3.2l-3.8.4c-.6.1-1%20.2-1.3.4-.3.2-.5.5-.6%201-.1.5%200%201%20.4%201.3.4.3.9.4%201.7.4%201.6%200%202.9-.3%203.8-.8.9-.5%201.5-1.3%201.7-2.3l.3-.8zm-11.6-3c.3-1%20.8-1.9%201.5-2.5.6-.6%201.4-1.1%202.3-1.4.9-.3%201.8-.5%202.8-.7%201-.1%202.1-.2%203.1-.2%201.2%200%202.4.1%203.5.2s2%20.4%202.7.7c.7.3%201.2.8%201.6%201.4.3.6.4%201.4.2%202.4l-1.5%207c-.1.5-.2%201-.2%201.4%200%20.2%200%20.4.1.5%200%20.2.1.4.2.6h-5.4c-.1-.2-.1-.4-.1-.6v-.6c-.9.8-2%201.2-3.1%201.5-1.1.2-2.4.4-3.8.4-4.5%200-6.5-1.4-5.9-4.3.2-.8.4-1.5.8-2s.9-1%201.4-1.3c.6-.4%201.2-.6%202-.8.8-.2%201.7-.3%202.7-.4l5.5-.4c.7%200%201.2-.1%201.4-.3.2-.2.4-.4.5-.8.1-.5-.1-.9-.6-1.1-.5-.2-1.3-.4-2.5-.4-1%200-1.8.1-2.4.4-.6.3-1%20.7-1.2%201.3h-5.6zm22-9.3h5.4l-.7%203.3h-5.4l.7-3.3zm-1%204.9h5.4l-2.9%2013.9h-5.4l2.9-13.9zm7.9%200h5.4l-.6%202.7h.1c.7-.9%201.7-1.7%202.8-2.2%201.1-.6%202.3-.9%203.5-.9h.9l.9.1-1%205.1c-.3-.1-.8-.2-1.3-.3-.6-.1-1.1-.1-1.6-.1-1.6%200-2.8.4-3.6%201.1-.9.7-1.4%201.7-1.7%203l-1.1%205.4h-5.4l2.7-13.9z%22/%3E%3C/svg%3E" alt="Nouvelair" /></a>
+        <h1>Connexion collaborateurs</h1>
+        <p class="lede">Plateforme interne de connaissances.</p>
+        <div class="field">
+          <label for="email">E-mail</label>
+          <input id="email" type="email" value="employe@example.com" />
+        </div>
+        <div class="field">
+          <label for="pwd">Mot de passe</label>
+          <input id="pwd" type="password" value="••••••••••" />
+        </div>
+        <a class="btn btn-block" href="#page-home">Connexion</a>
+      </form>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div class="page app" id="page-home">
+    <p class="crumb"><a href="#page-home">Accueil</a> → Bibliothèque</p>
+    <div class="head">
+      <div>
+        <h1>Bibliothèque</h1>
+        <p class="lede">Procédures, manuels et documents partagés.</p>
+      </div>
+      <a class="btn nav-manager" href="#page-publish">Nouvelle ressource</a>
+    </div>
+    <div class="toolbar">
+      <input type="search" placeholder="Rechercher…" />
+      <div class="filters">
+        <input class="sr" type="radio" name="cat" id="cat-all" checked />
+        <label for="cat-all">Tout</label>
+        <input class="sr" type="radio" name="cat" id="cat-ops" />
+        <label for="cat-ops">Ops</label>
+        <input class="sr" type="radio" name="cat" id="cat-rh" />
+        <label for="cat-rh">RH</label>
+        <input class="sr" type="radio" name="cat" id="cat-sec" />
+        <label for="cat-sec">Sécurité</label>
+        <input class="sr" type="radio" name="cat" id="cat-com" />
+        <label for="cat-com">Commercial</label>
+      </div>
+    </div>
+    <table>
+      <thead>
+        <tr><th>Titre</th><th>Catégorie</th><th>Mise à jour</th><th></th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Procédure d'embarquement — TUN</td>
+          <td>Ops</td>
+          <td>12 août 2026</td>
+          <td><a class="linkish" href="#page-detail">Ouvrir</a></td>
+        </tr>
+        <tr>
+          <td>Guide bagages cabine &amp; soute</td>
+          <td>Commercial</td>
+          <td>3 août 2026</td>
+          <td><a class="linkish" href="#page-detail">Ouvrir</a></td>
+        </tr>
+        <tr>
+          <td>Consignes sécurité incendie — hangar</td>
+          <td>Sécurité</td>
+          <td>28 juil. 2026</td>
+          <td><a class="linkish" href="#page-detail">Ouvrir</a></td>
+        </tr>
+        <tr>
+          <td>Accueil nouveaux collaborateurs</td>
+          <td>RH</td>
+          <td>15 juil. 2026</td>
+          <td><a class="linkish" href="#page-detail">Ouvrir</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PUBLISH -->
+  <div class="page app" id="page-publish">
+    <p class="crumb"><a href="#page-home">Accueil</a> → Publier</p>
+    <h1>Publier une ressource</h1>
+    <p class="lede">Déposez un fichier et renseignez les informations.</p>
+    <div class="form">
+      <div class="field"><div class="drop">Glissez un PDF ici — max 25 Mo</div></div>
+      <div class="two">
+        <div class="field">
+          <label>Titre</label>
+          <input type="text" placeholder="Procédure d'embarquement — TUN" />
+        </div>
+        <div class="field">
+          <label>Catégorie</label>
+          <select>
+            <option>Ops</option>
+            <option>RH</option>
+            <option>Sécurité</option>
+            <option>Commercial</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Description</label>
+        <textarea></textarea>
+      </div>
+      <div class="row-actions">
+        <a class="btn" href="#page-detail">Publier</a>
+        <a class="btn btn-out" href="#page-home">Annuler</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- DETAIL -->
+  <div class="page app" id="page-detail">
+    <p class="crumb"><a href="#page-home">Accueil</a> → Procédure d'embarquement — TUN</p>
+    <div class="head">
+      <div>
+        <h1>Procédure d'embarquement — TUN</h1>
+        <p class="lede">Ops · Version 2.4</p>
+      </div>
+      <div class="row-actions">
+        <a class="btn btn-out" href="#page-detail">Télécharger</a>
+        <a class="btn btn-out nav-manager" href="#page-publish">Modifier</a>
+        <a class="btn nav-manager" href="#page-home">Supprimer</a>
+      </div>
+    </div>
+    <div class="detail">
+      <div class="preview">Aperçu du document</div>
+      <div class="meta">
+        <p><b>Catégorie</b> Ops</p>
+        <p><b>Format</b> PDF · 12 pages</p>
+        <p><b>Taille</b> 1,4 Mo</p>
+        <p><b>Mise à jour</b> 12 août 2026</p>
+        <p><b>Indexation</b> Prête</p>
+        <p>Checklist et flux passagers pour les vols au départ de Tunis-Carthage.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ASSISTANT -->
+  <div class="page app" id="page-assistant">
+    <p class="crumb"><a href="#page-home">Accueil</a> → Assistant</p>
+    <h1>Assistant</h1>
+    <p class="lede">Questions métier à partir des documents indexés.</p>
+    <div class="chat-wrap">
+      <div class="chat">
+        <div class="msgs">
+          <div class="msg">Bonjour. Posez une question sur les procédures Nouvelair.</div>
+          <div class="msg me">Quelle est la limite de poids pour un bagage cabine ?</div>
+          <div class="msg">La limite standard en cabine est de <strong>8 kg</strong> (55 × 40 × 20 cm).
+            <div class="cite">Source — Guide bagages §2.1</div>
+          </div>
+        </div>
+        <div class="composer">
+          <input type="text" placeholder="Écrire une question…" />
+          <a class="btn" href="#page-assistant">Envoyer</a>
+        </div>
+      </div>
+      <div class="src">
+        <strong>Sources</strong>
+        <a href="#page-detail">Guide bagages cabine &amp; soute <small>Commercial</small></a>
+        <a href="#page-detail">Conditions générales de transport <small>Commercial</small></a>
+        <a href="#page-detail">FAQ voyageurs — été 2026 <small>Ops</small></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN -->
+  <div class="page app" id="page-admin">
+    <p class="crumb"><a href="#page-home">Accueil</a> → Administration</p>
+    <h1>Administration</h1>
+    <p class="lede">Pilotage de la plateforme.</p>
+    <div class="kpis">
+      <div><b>148</b><span>Ressources</span></div>
+      <div><b>62</b><span>Utilisateurs</span></div>
+      <div><b>4</b><span>Rôles</span></div>
+      <div><b>12</b><span>Catégories</span></div>
+    </div>
+    <div class="row-actions">
+      <a class="btn btn-out" href="#page-users">Utilisateurs</a>
+      <a class="btn btn-out" href="#page-roles">Rôles</a>
+      <a class="btn btn-out" href="#page-categories">Catégories</a>
+      <a class="btn" href="#page-publish">Publier</a>
+    </div>
+  </div>
+
+  <div class="page app" id="page-users">
+    <p class="crumb"><a href="#page-admin">Administration</a> → Utilisateurs</p>
+    <div class="head">
+      <h1>Utilisateurs</h1>
+      <a class="btn" href="#page-users">Ajouter</a>
+    </div>
+    <table>
+      <thead><tr><th>Nom</th><th>E-mail</th><th>Rôle</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>Sara Ben Ali</td><td>sara.benali@nouvelair.com</td><td>Employé</td><td><a class="linkish" href="#page-users">Éditer</a></td></tr>
+        <tr><td>Amine Khelifi</td><td>amine.khelifi@nouvelair.com</td><td>Manager</td><td><a class="linkish" href="#page-users">Éditer</a></td></tr>
+        <tr><td>Leila Mansouri</td><td>leila.mansouri@nouvelair.com</td><td>Admin</td><td><a class="linkish" href="#page-users">Éditer</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="page app" id="page-roles">
+    <p class="crumb"><a href="#page-admin">Administration</a> → Rôles</p>
+    <div class="head">
+      <h1>Rôles</h1>
+      <a class="btn" href="#page-roles">Nouveau rôle</a>
+    </div>
+    <table>
+      <thead><tr><th>Rôle</th><th>Description</th><th>Utilisateurs</th></tr></thead>
+      <tbody>
+        <tr><td>Employé</td><td>Consultation + assistant</td><td>48</td></tr>
+        <tr><td>Manager</td><td>Publication et édition</td><td>11</td></tr>
+        <tr><td>Administrateur</td><td>Back-office complet</td><td>3</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="page app" id="page-categories">
+    <p class="crumb"><a href="#page-admin">Administration</a> → Catégories</p>
+    <div class="head">
+      <h1>Catégories</h1>
+      <a class="btn" href="#page-categories">Catégorie</a>
+    </div>
+    <table>
+      <thead><tr><th>Nom</th><th>Ressources</th></tr></thead>
+      <tbody>
+        <tr><td>Ops</td><td>42</td></tr>
+        <tr><td>Commercial</td><td>28</td></tr>
+        <tr><td>Sécurité</td><td>19</td></tr>
+        <tr><td>RH</td><td>15</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="page app" id="page-map">
+    <p class="crumb"><a href="#page-home">Accueil</a> → Cartographie</p>
+    <h1>Écrans de la maquette</h1>
+    <p class="lede">Cliquez pour ouvrir. Changez le rôle en haut de page.</p>
+    <div class="map">
+      <a href="#page-home"><strong>Accueil</strong><span>Liste des ressources</span></a>
+      <a class="nav-manager" href="#page-publish"><strong>Publier</strong><span>Dépôt de document</span></a>
+      <a href="#page-detail"><strong>Fiche ressource</strong><span>Détail et aperçu</span></a>
+      <a href="#page-assistant"><strong>Assistant</strong><span>Questions et sources</span></a>
+      <a class="nav-admin" href="#page-admin"><strong>Administration</strong><span>Tableau de bord</span></a>
+      <a class="nav-admin" href="#page-users"><strong>Utilisateurs</strong></a>
+      <a class="nav-admin" href="#page-roles"><strong>Rôles</strong></a>
+      <a class="nav-admin" href="#page-categories"><strong>Catégories</strong></a>
+    </div>
+  </div>
+
+  <footer class="site">
+    © Nouvelair 2026 — Maquette Knowledge Platform ·
+    <a href="#page-map">Tous les écrans</a>
+  </footer>
+</body>
+</html>

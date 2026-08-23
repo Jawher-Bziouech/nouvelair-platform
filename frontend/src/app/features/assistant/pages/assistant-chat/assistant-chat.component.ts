@@ -1,4 +1,5 @@
 import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { AssistantService } from '../../../../core/services/assistant.service';
 import { AssistantMessage, Citation } from '../../../../core/models/api.models';
 
@@ -10,6 +11,7 @@ import { AssistantMessage, Citation } from '../../../../core/models/api.models';
 })
 export class AssistantChatComponent implements OnInit {
   private readonly assistant = inject(AssistantService);
+  private readonly sanitizer = inject(DomSanitizer);
 
   @ViewChild('thread') threadRef?: ElementRef<HTMLElement>;
 
@@ -36,7 +38,6 @@ export class AssistantChatComponent implements OnInit {
         this.scrollBottom();
       },
       error: () => {
-        // Session gone (reseed / other user) → start clean
         this.assistant.clearStoredSessionId();
         this.sessionId = null;
         this.messages = [];
@@ -102,6 +103,17 @@ export class AssistantChatComponent implements OnInit {
     return c.titre_ressource || `Ressource #${c.ressource_id}`;
   }
 
+  scoreLabel(score: number | null | undefined): string {
+    if (score == null || Number.isNaN(Number(score))) {
+      return '';
+    }
+    return `Pertinence ${Math.round(Number(score) * 100)} %`;
+  }
+
+  formatMessage(text: string): SafeHtml {
+    return this.sanitizer.bypassSecurityTrustHtml(this.toReadableHtml(text));
+  }
+
   get modeLabel(): string {
     switch (this.mode) {
       case 'gemini':
@@ -111,10 +123,101 @@ export class AssistantChatComponent implements OnInit {
       case 'openai':
         return 'OpenAI (RAG)';
       case 'local':
-        return 'local (extraits indexés)';
+        return 'local (réponse reformulée)';
+      case 'local-fallback':
+        return 'secours (Gemini indisponible)';
+      case 'greeting':
+        return '';
       default:
         return this.mode || '';
     }
+  }
+
+  private toReadableHtml(raw: string): string {
+    let text = (raw || '').replace(/\r\n/g, '\n').trim();
+    if (!text) {
+      return '';
+    }
+
+    // Break jammed inline lists into real lines
+    text = text.replace(/([^\n])\s+(\d{1,2})\.\s+/g, '$1\n$2. ');
+    text = text.replace(/([^\n])\s+([•\-–])\s+/g, '$1\n- ');
+    text = text.replace(/\s*—\s*/g, ' — ');
+
+    const escape = (s: string) =>
+      s
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+    const inline = (s: string) =>
+      escape(s).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+
+    const blocks = text.split(/\n{2,}/);
+    const htmlBlocks: string[] = [];
+
+    for (const block of blocks) {
+      const lines = block.split('\n').map((l) => l.trim()).filter(Boolean);
+      if (!lines.length) {
+        continue;
+      }
+
+      const allNumbered = lines.every((l) => /^\d+\.\s+/.test(l));
+      const allBullets = lines.every((l) => /^[-•–]\s+/.test(l));
+
+      if (allNumbered) {
+        htmlBlocks.push(
+          `<ol>${lines
+            .map((l) => `<li>${inline(l.replace(/^\d+\.\s+/, ''))}</li>`)
+            .join('')}</ol>`
+        );
+      } else if (allBullets) {
+        htmlBlocks.push(
+          `<ul>${lines
+            .map((l) => `<li>${inline(l.replace(/^[-•–]\s+/, ''))}</li>`)
+            .join('')}</ul>`
+        );
+      } else {
+        const parts: string[] = [];
+        let listBuf: { type: 'ol' | 'ul'; items: string[] } | null = null;
+
+        const flushList = () => {
+          if (!listBuf) {
+            return;
+          }
+          const tag = listBuf.type;
+          parts.push(
+            `<${tag}>${listBuf.items.map((i) => `<li>${i}</li>`).join('')}</${tag}>`
+          );
+          listBuf = null;
+        };
+
+        for (const line of lines) {
+          const numbered = line.match(/^(\d+)\.\s+(.*)$/);
+          const bullet = line.match(/^[-•–]\s+(.*)$/);
+          if (numbered) {
+            if (!listBuf || listBuf.type !== 'ol') {
+              flushList();
+              listBuf = { type: 'ol', items: [] };
+            }
+            listBuf.items.push(inline(numbered[2]));
+          } else if (bullet) {
+            if (!listBuf || listBuf.type !== 'ul') {
+              flushList();
+              listBuf = { type: 'ul', items: [] };
+            }
+            listBuf.items.push(inline(bullet[1]));
+          } else {
+            flushList();
+            parts.push(`<p>${inline(line)}</p>`);
+          }
+        }
+        flushList();
+        htmlBlocks.push(parts.join(''));
+      }
+    }
+
+    return htmlBlocks.join('');
   }
 
   private scrollBottom(): void {
