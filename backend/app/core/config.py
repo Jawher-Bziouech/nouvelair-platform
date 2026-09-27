@@ -47,11 +47,18 @@ for candidate in (
     _load_env_file(candidate)
 
 # Auth / security settings for the Nouvelair platform.
-# Move SECRET_KEY to an environment variable before production.
+# Keep secrets outside source control. See .env.example at the repository root.
 
-SECRET_KEY = "nouvelair-dev-secret-change-me"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 8  # 8 hours
+SECRET_KEY = os.getenv("SECRET_KEY", "").strip()
+if not SECRET_KEY:
+    raise RuntimeError(
+        "SECRET_KEY is not configured. Set it in backend/.env or the environment."
+    )
+
+ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256").strip()
+ACCESS_TOKEN_EXPIRE_MINUTES = int(
+    os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", str(60 * 8))
+)
 
 # Local file storage for uploaded knowledge resources
 BASE_DIR = _BACKEND_DIR
